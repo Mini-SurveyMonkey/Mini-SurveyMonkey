@@ -2,6 +2,10 @@
 A SpringBoot app with functionality to create, edit, and review surveys.
 Inspired by the SurveyMonkey platform.
 
-Relational Database Schema:
+### Relational Database Schema:
 
 ![Schema Diagram](src/main/resources/Diagrams/Relational_Database_Schema.png)
+
+### Progress:
+
+For Milestone 1, we have implemented a functional SurveyMonkey application that allows users to create MCQ, numerical, and open-ended questions.
