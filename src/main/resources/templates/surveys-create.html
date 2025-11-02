@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Survey</title>
+  <link rel="stylesheet" th:href="@{/css/survey.css}">
+</head>
+<body>
+  <div class="topnav">
+    <a th:href="@{/}">&#8592; Home</a>
+  </div>
+
+  <h1>Create Survey</h1>
+  <p class="muted">Add questions. For number type you can set an integer range.</p>
+
+  <fieldset>
+    <legend>Survey</legend>
+    <div class="row">
+      <label for="surveyTitle">Title:</label>
+      <input id="surveyTitle" type="text" placeholder="e.g., 4806 Survey"/>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Add Question</legend>
+    <div class="row">
+      <label for="qText">Question</label>
+      <input id="qText" type="text" placeholder="e.g., What is the best SYSC class?"/>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <label for="qType">Type</label>
+      <select id="qType">
+        <option value="OPEN_TEXT">Open-ended (text)</option>
+        <option value="NUMBER">Number (with optional range)</option>
+        <option value="CHOICE">Multiple choice</option>
+      </select>
+      <button id="addQuestionBtn" class="primary" type="button">Add Question</button>
+    </div>
+
+    <!-- NUMBER range inputs -->
+    <div id="numberRangeBlock" style="display:none; margin-top:0.75rem;">
+      <div class="row">
+        <label for="minValue">Min</label>
+        <input id="minValue" type="number" placeholder="e.g., 0"/>
+        <label for="maxValue">Max</label>
+        <input id="maxValue" type="number" placeholder="e.g., 100"/>
+      </div>
+      <p class="muted">Leave either field empty for no bound.</p>
+    </div>
+
+    <!-- CHOICE options -->
+    <div id="choiceOptionsBlock" style="display:none; margin-top:0.75rem;">
+      <label for="choiceOptions">Choices (one per line):</label>
+      <textarea id="choiceOptions" placeholder="Yes
+No
+Maybe"></textarea>
+    </div>
+  </fieldset>
+
+  <h2>Questions in this Survey</h2>
+  <div id="questionsList"></div>
+
+  <div class="row">
+    <button id="saveSurveyBtn" class="primary" type="button">Save Survey</button>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <hr/>
+
+  <h2>Existing Surveys</h2>
+  <p class="muted">Fetched from <code>GET /surveys</code></p>
+  <div>
+    <button id="refreshBtn" type="button">Refresh List</button>
+  </div>
+  <ul id="surveysUl"></ul>
+  <script th:src="@{/js/surveys-create.js}"></script>
+</body>
+</html>
