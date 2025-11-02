@@ -15,5 +15,20 @@ public class Survey {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Question> questions = new ArrayList<>();
 
-    // Getters, setters, addQuestion/removeQuestion omitted for brevity
+    public List<Question> getQuestions() {
+        return this.questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
+
+    public boolean isClosed() {
+        return this.closed;
+    }
+
+    public void setClosed(boolean closed) {
+        this.closed = closed;
+    }
+
 }
