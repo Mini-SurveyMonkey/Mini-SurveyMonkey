@@ -1,6 +1,6 @@
-package repository;
+package org.example.repository;
 
-import model.Question;
+import org.example.model.Question;
 import org.springframework.data.repository.CrudRepository;
 
 public interface QuestionRepository extends CrudRepository<Question, Long> {}

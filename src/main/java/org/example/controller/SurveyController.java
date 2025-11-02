@@ -1,13 +1,13 @@
-package controller;
+package org.example.controller;
 
-import model.Answer;
-import model.Question;
-import model.Survey;
+import org.example.model.Answer;
+import org.example.model.Question;
+import org.example.model.Survey;
+import org.example.repository.AnswerRepository;
+import org.example.repository.QuestionRepository;
+import org.example.repository.SurveyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import repository.AnswerRepository;
-import repository.QuestionRepository;
-import repository.SurveyRepository;
 
 import java.util.List;
 
