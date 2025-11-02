@@ -4,4 +4,4 @@ Inspired by the SurveyMonkey platform.
 
 Relational Database Schema:
 
-![Schema Diagram] (https://github.com/Mini-SurveyMonkey/Mini-SurveyMonkey/src/main/resources/Diagrams/Relational_Database_Schema.png)
+![Schema Diagram] (src/main/resources/Diagrams/Relational_Database_Schema.png)
