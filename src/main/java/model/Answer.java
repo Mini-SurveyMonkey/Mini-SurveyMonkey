@@ -14,8 +14,8 @@ public class Answer {
     @ManyToOne
     private Survey survey;
 
-    private String answerText; // For numeric: store as string and parse as needed
+    private String answerText;
 
-    // Getters, setters omitted
+    // Add Getters and Setters
 }
 

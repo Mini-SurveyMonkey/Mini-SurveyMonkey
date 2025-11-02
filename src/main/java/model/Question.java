@@ -9,10 +9,10 @@ public class Question {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String questionText;
-    private String type;       // "open", "numeric", "choice"
+    private String type;
 
     @ElementCollection
-    private List<String> options; // Only used if type == "choice"
+    private List<String> options;
 
-    // Getters, setters omitted
+    // Add Getters and Setters
 }
