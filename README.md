@@ -9,3 +9,4 @@ Inspired by the SurveyMonkey platform.
 ### Progress:
 
 For Milestone 1, we have implemented a functional SurveyMonkey application that allows users to create MCQ, numerical, and open-ended questions.
+The application is deployed on Azure at this url: https://mini-survey-monkey-eyd6fhfyesf6ezay.canadacentral-01.azurewebsites.net/
