@@ -10,3 +10,9 @@ Inspired by the SurveyMonkey platform.
 
 For Milestone 1, we have implemented a functional SurveyMonkey application that allows users to create MCQ, numerical, and open-ended questions.
 The application is deployed on Azure at this url: https://mini-survey-monkey-eyd6fhfyesf6ezay.canadacentral-01.azurewebsites.net/
+
+- Sahadeo, Andrew: Back-end, Front-end
+- Mohamed Yonis, Mahad: Back-end, Azure with CI
+- Hassan, Muhammad: Back-end, Database schema
+- Evensen, Gabriel #101119814: Testing, Documentation
+- Beldjehem, Tarik: POM.xml with Dependencies, Back-end
