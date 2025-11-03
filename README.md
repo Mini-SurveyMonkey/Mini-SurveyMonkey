@@ -19,3 +19,7 @@ The application is deployed on Azure at this url: https://mini-survey-monkey-eyd
 - **Hassan, Muhammad #101181439:** Back-end, Database schema, Documentation
 - **Evensen, Gabriel #101119814:** Testing, Documentation
 - **Beldjehem, Tarik #101187965:** POM.xml with Dependencies, Back-end, Documentation
+
+### Next Sprint Plan:
+
+Create new issues based on Milestone 2 and assign them. Work on adding more functionality to the application. including more survey editing and cleaner frontend UI.
