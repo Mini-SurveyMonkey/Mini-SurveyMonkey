@@ -6,6 +6,10 @@ Inspired by the SurveyMonkey platform.
 
 ![Schema Diagram](src/main/resources/Diagrams/Relational_Database_Schema.png)
 
+### UML Class Diagram:
+
+![UML Class Diagram](src/main/resources/Diagrams/UML_Class_Diagram.png)
+
 ### Progress:
 
 For Milestone 1, we have implemented a functional SurveyMonkey application that allows users to create MCQ, numerical, and open-ended questions.
