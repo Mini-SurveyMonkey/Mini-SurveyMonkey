@@ -14,7 +14,7 @@ The application is deployed on Azure at this url: https://mini-survey-monkey-eyd
 
 ### Contribution:
 
-- **Sahadeo, Andrew:** Back-end, Front-end, Documentation
+- **Sahadeo, Andrew #101186368:** Back-end, Front-end, Documentation
 - **Mohamed Yonis, Mahad:** Back-end, Azure with CI, Documentation
 - **Hassan, Muhammad:** Back-end, Database schema, Documentation
 - **Evensen, Gabriel #101119814:** Testing, Documentation
