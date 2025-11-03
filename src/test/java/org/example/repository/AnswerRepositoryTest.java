@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * This class tests in isolation using an in-memory database
+ * This class tests in isolation using an H2 in-memory database
  */
 @DataJpaTest
 class AnswerRepositoryTest {
