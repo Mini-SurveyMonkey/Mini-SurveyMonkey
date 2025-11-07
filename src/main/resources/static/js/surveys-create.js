@@ -148,6 +148,7 @@
         title.innerHTML = '<strong>#' + s.id + '</strong> — ' + (s.title || '(untitled)');
         li.appendChild(title);
 
+        // View Survey
         const btn = document.createElement('button');
         btn.style.marginLeft = '0.5rem'; btn.textContent = 'View JSON';
         btn.onclick = async () => {
@@ -155,6 +156,30 @@
         };
         li.appendChild(btn);
         ul.appendChild(li);
+
+        // Close or reopen Survey
+        const toggleBtn = document.createElement('button');
+        toggleBtn.style.marginLeft = '0.5rem';
+        toggleBtn.textContent = s.closed ? 'Reopen' : 'Close';
+        toggleBtn.onclick = async () => {
+          const action = s.closed ? 'reopen' : 'close';
+          if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
+          try {
+            const resp = await fetch('/surveys/' + s.id + '/close', { method: 'POST' });
+            if (!resp.ok) throw new Error('Failed to ' + action + ' survey: ' + resp.status);
+            const updated = await resp.json();
+            const updatedId = (updated.id ?? updated.surveyId ?? updated.ID ?? updated.Id);
+            const updatedTitle = (updated.title ?? updated.name ?? '(untitled)');
+            const pastTense = (action === 'reopen') ? 'Reopened' : 'Closed';
+            status.textContent = pastTense + ' survey #' + (updatedId ?? 'unknown') + ' (' + updatedTitle + ').';
+            status.className = 'success';
+            loadSurveys();
+          } catch (e) {
+            status.textContent = e.message;
+            status.className = 'error';
+          }
+        };
+        li.appendChild(toggleBtn);
       });
     } catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
