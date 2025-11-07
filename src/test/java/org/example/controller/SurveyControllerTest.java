@@ -177,4 +177,41 @@ class SurveyControllerTest {
         verify(surveyRepository).findById(id);
         verify(surveyRepository).save(any(Survey.class));
     }
+
+    @Test
+    void testToggleSurvey() throws Exception {
+        Long id = 1L;
+
+        Survey openSurvey = new Survey();
+        openSurvey.setId(id);
+        openSurvey.setTitle("Toggle Survey");
+        openSurvey.setClosed(false);
+
+        Survey closedSurvey = new Survey();
+        closedSurvey.setId(id);
+        closedSurvey.setTitle("Toggle Survey");
+        closedSurvey.setClosed(true);
+
+        when(surveyRepository.findById(id)).thenReturn(Optional.of(openSurvey));
+        when(surveyRepository.save(any(Survey.class))).thenReturn(closedSurvey);
+
+        mockMvc.perform(post("/surveys/{id}/close", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.closed").value(true));
+
+        Survey reopened = new Survey();
+        reopened.setId(id);
+        reopened.setTitle("Toggle Survey");
+        reopened.setClosed(false);
+
+        when(surveyRepository.findById(id)).thenReturn(Optional.of(closedSurvey));
+        when(surveyRepository.save(any(Survey.class))).thenReturn(reopened);
+
+        mockMvc.perform(post("/surveys/{id}/close", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.closed").value(false));
+
+        verify(surveyRepository, times(2)).findById(id);
+        verify(surveyRepository, times(2)).save(any(Survey.class));
+    }
 }
