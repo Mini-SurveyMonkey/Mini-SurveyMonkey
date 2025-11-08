@@ -150,7 +150,8 @@
 
         // View Survey
         const btn = document.createElement('button');
-        btn.style.marginLeft = '0.5rem'; btn.textContent = 'View JSON';
+        btn.textContent = 'View JSON';
+        btn.classList.add('surveyBtn');
         btn.onclick = async () => {
           try { const r = await fetch('/surveys/' + s.id); const j = await r.json(); alert(JSON.stringify(j, null, 2)); } catch (_) {}
         };
@@ -159,8 +160,8 @@
 
         // Close or reopen Survey
         const toggleBtn = document.createElement('button');
-        toggleBtn.style.marginLeft = '0.5rem';
         toggleBtn.textContent = s.closed ? 'Reopen' : 'Close';
+        toggleBtn.classList.add('surveyBtn');
         toggleBtn.onclick = async () => {
           const action = s.closed ? 'reopen' : 'close';
           if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
