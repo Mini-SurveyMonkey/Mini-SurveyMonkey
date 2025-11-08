@@ -1,11 +1,7 @@
 package org.example.controller;
 
-import org.example.model.Answer;
-import org.example.model.Question;
-import org.example.model.Survey;
-import org.example.repository.AnswerRepository;
-import org.example.repository.QuestionRepository;
-import org.example.repository.SurveyRepository;
+import org.example.model.*;
+import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +15,18 @@ public class SurveyController {
     private QuestionRepository questionRepository;
     @Autowired
     private AnswerRepository answerRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostMapping("/surveys")
-    public Survey createSurvey(@RequestBody Survey survey) { return surveyRepository.save(survey); }
+    public Survey createSurvey(@RequestBody Survey survey) { 
+        User temp = userRepository.findByUsername("temp")
+        .orElseGet(() -> userRepository.save(new User("temp")));
+
+        survey.setCreator(temp);
+
+        return surveyRepository.save(survey); 
+    }
 
     @PostMapping("/surveys/{surveyId}/questions")
     public Survey addQuestion(@PathVariable Long surveyId, @RequestBody Question question) {
