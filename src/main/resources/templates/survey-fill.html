@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${survey.title}">Fill Survey</title>
+</head>
+<body>
+<h1 th:text="${survey.title}">Survey Title</h1>
+<form action="#" method="post">
+    <ul>
+        <li th:each="q : ${survey.questions}">
+            <span th:text="${q.questionText}">Question?</span>
+            <!-- Add logic here for question types/inputs -->
+            <input type="text" name="q[[${q.id}]]"/>
+        </li>
+    </ul>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
