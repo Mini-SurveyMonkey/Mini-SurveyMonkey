@@ -42,9 +42,9 @@ public class SurveyController {
     public List<Survey> getAllSurveys() { return (List<Survey>) surveyRepository.findAll(); }
 
     @PostMapping("/surveys/{id}/close")
-    public Survey closeSurvey(@PathVariable Long id) {
+    public Survey closeOrOpenSurvey(@PathVariable Long id) {
         Survey survey = surveyRepository.findById(id).orElseThrow();
-        survey.setClosed(true);
+        survey.setClosed(!survey.isClosed());
         return surveyRepository.save(survey);
     }
 }

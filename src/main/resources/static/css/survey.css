@@ -53,6 +53,11 @@ button {
     border: 1px solid #999;
     background: #f7f7f7;
     cursor: pointer;
+    opacity: 0.8;
+}
+
+button:hover {
+  opacity: 1;
 }
 
 button.primary {
@@ -105,4 +110,11 @@ a.button {
     border: 1px solid #999;
     border-radius: 8px;
     text-decoration: none;
+}
+
+.surveyBtn {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
 }
