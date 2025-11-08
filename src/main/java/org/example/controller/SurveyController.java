@@ -9,6 +9,7 @@ import org.example.repository.SurveyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -53,6 +54,15 @@ public class SurveyController {
     public String getShareableSurveyLink(@PathVariable Long surveyId, HttpServletRequest request) {
         String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
         return baseUrl + "/surveys/" + surveyId + "/fill";
+    }
+
+    @GetMapping("/surveys/{surveyId}/fill")
+    public ModelAndView showSurveyToFill(@PathVariable Long surveyId) {
+        Survey survey = surveyRepository.findById(surveyId)
+                .orElseThrow(() -> new RuntimeException("Survey not found"));
+        ModelAndView mav = new ModelAndView("survey-fill"); // This is the name of your Thymeleaf template
+        mav.addObject("survey", survey);
+        return mav;
     }
 }
 
