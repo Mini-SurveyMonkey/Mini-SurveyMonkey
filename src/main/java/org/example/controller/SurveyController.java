@@ -3,6 +3,7 @@ package org.example.controller;
 import org.example.model.*;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -65,7 +66,7 @@ public class SurveyController {
     public ModelAndView showSurveyToFill(@PathVariable Long surveyId) {
         Survey survey = surveyRepository.findById(surveyId)
                 .orElseThrow(() -> new RuntimeException("Survey not found"));
-        ModelAndView mav = new ModelAndView("survey-fill"); // This is the name of your Thymeleaf template
+        ModelAndView mav = new ModelAndView("survey-fill");
         mav.addObject("survey", survey);
         return mav;
     }
