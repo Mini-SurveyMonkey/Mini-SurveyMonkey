@@ -48,5 +48,11 @@ public class SurveyController {
         survey.setClosed(!survey.isClosed());
         return surveyRepository.save(survey);
     }
+
+    @GetMapping("/surveys/{surveyId}/share")
+    public String getShareableSurveyLink(@PathVariable Long surveyId, HttpServletRequest request) {
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        return baseUrl + "/surveys/" + surveyId + "/fill";
+    }
 }
 
