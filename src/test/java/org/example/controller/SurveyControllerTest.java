@@ -214,4 +214,29 @@ class SurveyControllerTest {
         verify(surveyRepository, times(2)).findById(id);
         verify(surveyRepository, times(2)).save(any(Survey.class));
     }
+
+    @Test
+    void testReturnShareableLink() throws Exception {
+        Long surveyId = 1L;
+
+        mockMvc.perform(get("/surveys/{id}/share", surveyId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("/surveys/" + surveyId + "/fill")));
+    }
+
+    @Test
+    void testDisplayFillableSurvey() throws Exception {
+        Long surveyId = 2L;
+        Survey survey = new Survey();
+        survey.setId(surveyId);
+        survey.setTitle("Fillable Survey");
+
+        when(surveyRepository.findById(surveyId)).thenReturn(Optional.of(survey));
+
+        mockMvc.perform(get("/surveys/{id}/fill", surveyId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fillable Survey")));
+
+        verify(surveyRepository).findById(surveyId);
+    }
 }
