@@ -3,9 +3,12 @@ package org.example.controller;
 import org.example.model.Answer;
 import org.example.model.Question;
 import org.example.model.Survey;
+import org.example.model.User;
 import org.example.repository.AnswerRepository;
 import org.example.repository.QuestionRepository;
 import org.example.repository.SurveyRepository;
+import org.example.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,6 +41,15 @@ class SurveyControllerTest {
     @MockitoBean
     private AnswerRepository answerRepository;
 
+    @MockitoBean
+    private UserRepository userRepository;
+
+    @BeforeEach
+    void setUp() {
+        User temp = new User("temp");
+        when(userRepository.findByUsername("temp")).thenReturn(Optional.of(temp));
+    }
+    
     @Test
     void testCreateSurvey() throws Exception {
         Survey inputSurvey = new Survey();
