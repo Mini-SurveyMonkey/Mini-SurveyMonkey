@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 public class Survey {
     @Id
@@ -15,6 +17,10 @@ public class Survey {
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Question> questions = new ArrayList<>();
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"surveys"}) // More loop prevention
+    private User creator;
 
     // Getters and Setters
     public Long getId() {
@@ -45,6 +51,14 @@ public class Survey {
 
     public void setClosed(boolean closed) {
         this.closed = closed;
+    }
+
+    public User getCreator() { 
+        return creator; 
+    }
+
+    public void setCreator(User creator) { 
+        this.creator = creator; 
     }
 
 }

@@ -19,21 +19,48 @@ public class Question {
 
     // Getters and Setters
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() { 
+        return id; 
+    }
+    public void setId(Long id) { 
+        this.id = id; 
+    }
 
-    public String getQuestionText() { return questionText; }
-    public void setQuestionText(String questionText) { this.questionText = questionText; }
+    public String getQuestionText() { 
+        return questionText; 
+    }
 
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public void setQuestionText(String questionText) { 
+        this.questionText = questionText; 
+    }
 
-    public List<String> getOptions() { return options; }
-    public void setOptions(List<String> options) { this.options = options; }
+    public String getType() { 
+        return type; 
+    }
+
+    public void setType(String type) { 
+        this.type = type; 
+    }
+
+    public List<String> getOptions() { 
+        return options; 
+    }
+
+    public void setOptions(List<String> options) { 
+        this.options = options; 
+    }
     
-    public Integer getMinValue() { return minValue; }
-    public void setMinValue(Integer minValue) { this.minValue = minValue; }
+    public Integer getMinValue() { 
+        return minValue; 
+    }
 
-    public Integer getMaxValue() { return maxValue; }
+    public void setMinValue(Integer minValue) { 
+        this.minValue = minValue; 
+    }
+
+    public Integer getMaxValue() { 
+        return maxValue; 
+    }
+    
     public void setMaxValue(Integer maxValue) { this.maxValue = maxValue; }
 }
