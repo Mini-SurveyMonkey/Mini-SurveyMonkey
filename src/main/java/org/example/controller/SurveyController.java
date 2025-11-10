@@ -3,7 +3,11 @@ package org.example.controller;
 import org.example.model.*;
 import org.example.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -52,5 +56,12 @@ public class SurveyController {
         survey.setClosed(!survey.isClosed());
         return surveyRepository.save(survey);
     }
+
+    @GetMapping("/surveys/{surveyId}/share")
+    public String getShareableSurveyLink(@PathVariable Long surveyId, HttpServletRequest request) {
+        String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+        return baseUrl + "/surveys/" + surveyId + "/response";
+    }
+
 }
 
