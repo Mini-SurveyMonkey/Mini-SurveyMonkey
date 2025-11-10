@@ -226,4 +226,14 @@ class SurveyControllerTest {
         verify(surveyRepository, times(2)).findById(id);
         verify(surveyRepository, times(2)).save(any(Survey.class));
     }
+
+    @Test
+    void testReturnShareableLink() throws Exception {
+        Long surveyId = 1L;
+
+        mockMvc.perform(get("/surveys/{id}/share", surveyId))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("/surveys/" + surveyId + "/response")));
+    }
+
 }

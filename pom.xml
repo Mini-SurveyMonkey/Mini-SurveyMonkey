@@ -90,6 +90,10 @@
             <scope>test</scope>
         </dependency>
 
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

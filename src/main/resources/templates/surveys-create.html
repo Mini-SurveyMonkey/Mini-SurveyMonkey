@@ -78,6 +78,11 @@ Maybe"></textarea>
     <button id="refreshBtn" type="button">Refresh List</button>
   </div>
   <ul id="surveysUl"></ul>
+
+  <div class="input-group mb-3" id="shareArea" style="display:none;">
+      <input type="text" id="shareLink" class="form-control" readonly>
+      <button class="btn btn-outline-secondary" type="button" id="copyBtn">Copy Link</button>
+  </div>
   <script th:src="@{/js/surveys-create.js}"></script>
 </body>
 </html>

@@ -2,6 +2,10 @@
   const questions = [];
 
   const el = (id) => document.getElementById(id);
+
+  el('shareArea').style.display = 'none';
+  el('shareLink').value = '';
+
   const questionsList = el('questionsList');
   const choiceBlock = el('choiceOptionsBlock');
   const numberBlock = el('numberRangeBlock');
@@ -133,6 +137,9 @@
   }
 
   async function loadSurveys() {
+    el('shareArea').style.display = 'none';
+    el('shareLink').value = '';
+
     const ul = el('surveysUl');
     ul.innerHTML = '';
     try {
@@ -181,6 +188,23 @@
           }
         };
         li.appendChild(toggleBtn);
+
+        const shareBtn = document.createElement('button');
+        shareBtn.textContent = 'Share';
+        shareBtn.className = 'btn btn-info surveyBtn';
+        shareBtn.onclick = async () => {
+            try {
+                const resp = await fetch('/surveys/' + s.id + '/share');
+                if (!resp.ok) throw new Error('Failed to fetch share link');
+                const link = await resp.text();
+                el('shareLink').value = link;
+                el('shareArea').style.display = 'flex';
+            } catch (e) {
+                alert(e.message);
+            }
+        };
+        li.appendChild(shareBtn);
+        ul.appendChild(li);
       });
     } catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
@@ -189,6 +213,13 @@
 
   el('saveSurveyBtn').addEventListener('click', saveSurvey);
   el('refreshBtn').addEventListener('click', loadSurveys);
+
+  el('copyBtn').onclick = function() {
+      const input = el('shareLink');
+      input.select();
+      document.execCommand('copy');
+      alert('Link copied!');
+  };
 
   renderQuestions();
   loadSurveys();
