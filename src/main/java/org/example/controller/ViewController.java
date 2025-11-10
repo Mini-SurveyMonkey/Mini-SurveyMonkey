@@ -18,9 +18,10 @@ public class ViewController {
         return "surveys-create";
     }
 
-    @GetMapping("/surveys/{id}/take")
+    @GetMapping("/surveys/{id}/response")
     public String takeSurvey(@PathVariable Long id, Model model) {
         model.addAttribute("surveyId", id);
         return "surveys-take";
     }
+
 }
