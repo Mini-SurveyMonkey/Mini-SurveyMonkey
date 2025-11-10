@@ -15,4 +15,7 @@ public class ViewController {
     public String newSurvey() {
         return "surveys-create";
     }
+
+    @GetMapping("/login")
+    public String login() { return "login"; }
 }
