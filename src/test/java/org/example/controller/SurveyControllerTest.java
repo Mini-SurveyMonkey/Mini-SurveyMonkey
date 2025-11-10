@@ -233,22 +233,7 @@ class SurveyControllerTest {
 
         mockMvc.perform(get("/surveys/{id}/share", surveyId))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("/surveys/" + surveyId + "/fill")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("/surveys/" + surveyId + "/response")));
     }
 
-    @Test
-    void testDisplayFillableSurvey() throws Exception {
-        Long surveyId = 2L;
-        Survey survey = new Survey();
-        survey.setId(surveyId);
-        survey.setTitle("Fillable Survey");
-
-        when(surveyRepository.findById(surveyId)).thenReturn(Optional.of(survey));
-
-        mockMvc.perform(get("/surveys/{id}/fill", surveyId))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Fillable Survey")));
-
-        verify(surveyRepository).findById(surveyId);
-    }
 }
