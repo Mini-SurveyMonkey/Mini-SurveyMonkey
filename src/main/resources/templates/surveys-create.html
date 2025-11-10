@@ -8,6 +8,9 @@
 </head>
 <body>
   <div class="topnav">
+      <form th:action="@{/logout}" method="post">
+          <input type="submit" value="Sign Out"/>
+      </form>
     <a th:href="@{/}">&#8592; Home</a>
   </div>
 
