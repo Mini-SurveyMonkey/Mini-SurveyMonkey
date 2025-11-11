@@ -1,5 +1,6 @@
 package org.example.configuration;
 
+import jakarta.servlet.http.Cookie;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,18 +16,36 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/index", "/home").permitAll()
-                        .anyRequest().authenticated()
+                .authorizeHttpRequests(authorize -> authorize
+                                .requestMatchers("/register", "/processing-registration").permitAll()
+                                .anyRequest().authenticated()
                 )
-                .formLogin((form) -> form
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2/**"))
+                .headers(headers ->
+                        headers.frameOptions((frameOptions) -> frameOptions.disable())
+                )
+
+                .formLogin(form -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("/")
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
-                .logout((logout) -> logout.permitAll());
-
+                .logout(logout -> logout
+                        .logoutUrl( "/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .addLogoutHandler((request, response, auth) -> {
+                            for (Cookie cookie : request.getCookies()) {
+                                String cookieName = cookie.getName();
+                                Cookie cookieToDelete = new Cookie(cookieName, null);
+                                cookieToDelete.setMaxAge(0);
+                                response.addCookie(cookieToDelete);
+                            }
+                        })
+                        .permitAll()
+                );
         return http.build();
     }
 
