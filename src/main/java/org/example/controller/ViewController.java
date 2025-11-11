@@ -19,12 +19,13 @@ public class ViewController {
     }
 
     @GetMapping("/login")
-    public String login() { return "login"; }
-}
+    public String login() {
+        return "login";
+    }
+
+
     @GetMapping("/surveys/{id}/response")
     public String takeSurvey(@PathVariable Long id, Model model) {
         model.addAttribute("surveyId", id);
-        return "surveys-take";
-    }
-
+        return "surveys-take";}
 }
