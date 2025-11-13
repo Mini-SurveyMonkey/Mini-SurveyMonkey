@@ -236,4 +236,19 @@ class SurveyControllerTest {
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("/surveys/" + surveyId + "/response")));
     }
 
+    @Test
+    void testDeleteSurvey() throws Exception {
+        Long id = 1L;
+
+        Survey survey = new Survey();
+        survey.setId(id);
+        when(surveyRepository.findById(id)).thenReturn(Optional.of(survey));
+        doNothing().when(surveyRepository).deleteById(id);
+
+        mockMvc.perform(delete("/surveys/{id}", id))
+                .andExpect(status().isNoContent());
+
+        verify(surveyRepository).deleteById(id);
+    }
+
 }
