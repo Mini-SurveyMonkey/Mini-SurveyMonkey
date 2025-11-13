@@ -205,6 +205,25 @@
         };
         li.appendChild(shareBtn);
         ul.appendChild(li);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.classList.add('surveyBtn');
+        deleteBtn.onclick = async () => {
+            if (!confirm("Are you sure you want to delete survey #" + s.id + "?")) return;
+            try {
+                const resp = await fetch('/surveys/' + s.id, { method: 'DELETE' });
+                if (!resp.ok) throw new Error("Failed to delete survey " + resp.status);
+                status.textContent = "Deleted survey #" + s.id;
+                status.className = "success";
+                loadSurveys(); // Refresh the list after deletion
+            } catch (e) {
+                status.textContent = e.message;
+                status.className = "error";
+            }
+        };
+        li.appendChild(deleteBtn);
+        ul.appendChild(li);
       });
     } catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
