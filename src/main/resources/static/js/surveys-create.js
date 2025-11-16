@@ -132,62 +132,86 @@
     }
   }
 
-  async function loadSurveys() {
-    const ul = el('surveysUl');
-    ul.innerHTML = '';
-    try {
-      const resp = await fetch('/surveys', { method: 'GET' });
-      if (!resp.ok) throw new Error('Failed to fetch surveys: ' + resp.status);
-      const data = await resp.json();
-      if (!Array.isArray(data) || data.length === 0) {
-        const li = document.createElement('li'); li.className = 'muted'; li.textContent = 'No surveys yet.'; ul.appendChild(li); return;
+    async function loadSurveys() {
+        const ul = el('surveysUl');
+        ul.innerHTML = '';
+        try {
+            const resp = await fetch('/surveys', { method: 'GET' });
+            if (!resp.ok) throw new Error('Failed to fetch surveys: ' + resp.status);
+            const data = await resp.json();
+            if (!Array.isArray(data) || data.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'muted';
+                li.textContent = 'No surveys yet.';
+                ul.appendChild(li);
+                return;
+            }
+
+            data.forEach(s => {
+                const li = document.createElement('li');
+
+                const title = document.createElement('span');
+                title.innerHTML = '<strong>#' + s.id + '</strong> — ' + (s.title || '(untitled)');
+                li.appendChild(title);
+
+                // View Survey JSON (existing)
+                const viewBtn = document.createElement('button');
+                viewBtn.textContent = 'View JSON';
+                viewBtn.classList.add('surveyBtn');
+                viewBtn.onclick = async () => {
+                    try {
+                        const r = await fetch('/surveys/' + s.id);
+                        const j = await r.json();
+                        alert(JSON.stringify(j, null, 2));
+                    } catch (_) {}
+                };
+                li.appendChild(viewBtn);
+
+                const previewBtn = document.createElement('button');
+                previewBtn.textContent = 'Preview';
+                previewBtn.classList.add('surveyBtn');
+                previewBtn.onclick = () => {
+                    window.location.href = '/surveys/' + s.id + '/preview';
+                };
+                li.appendChild(previewBtn);
+
+                // Close or reopen Survey (existing)
+                const toggleBtn = document.createElement('button');
+                toggleBtn.textContent = s.closed ? 'Reopen' : 'Close';
+                toggleBtn.classList.add('surveyBtn');
+                toggleBtn.onclick = async () => {
+                    const action = s.closed ? 'reopen' : 'close';
+                    if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
+                    try {
+                        const resp = await fetch('/surveys/' + s.id + '/close', { method: 'POST' });
+                        if (!resp.ok) throw new Error('Failed to ' + action + ' survey: ' + resp.status);
+                        const updated = await resp.json();
+                        const updatedId = (updated.id ?? updated.surveyId ?? updated.ID ?? updated.Id);
+                        const updatedTitle = (updated.title ?? updated.name ?? '(untitled)');
+                        const pastTense = (action === 'reopen') ? 'Reopened' : 'Closed';
+                        status.textContent = pastTense + ' survey #' + (updatedId ?? 'unknown') + ' (' + updatedTitle + ').';
+                        status.className = 'success';
+                        loadSurveys();
+                    } catch (e) {
+                        status.textContent = e.message;
+                        status.className = 'error';
+                    }
+                };
+                li.appendChild(toggleBtn);
+
+                // append li after all buttons are added
+                ul.appendChild(li);
+            });
+        } catch (e) {
+            const li = document.createElement('li');
+            li.className = 'error';
+            li.textContent = e.message;
+            ul.appendChild(li);
         }
-      data.forEach(s => {
-        const li = document.createElement('li');
-        const title = document.createElement('span');
-        title.innerHTML = '<strong>#' + s.id + '</strong> — ' + (s.title || '(untitled)');
-        li.appendChild(title);
-
-        // View Survey
-        const btn = document.createElement('button');
-        btn.textContent = 'View JSON';
-        btn.classList.add('surveyBtn');
-        btn.onclick = async () => {
-          try { const r = await fetch('/surveys/' + s.id); const j = await r.json(); alert(JSON.stringify(j, null, 2)); } catch (_) {}
-        };
-        li.appendChild(btn);
-        ul.appendChild(li);
-
-        // Close or reopen Survey
-        const toggleBtn = document.createElement('button');
-        toggleBtn.textContent = s.closed ? 'Reopen' : 'Close';
-        toggleBtn.classList.add('surveyBtn');
-        toggleBtn.onclick = async () => {
-          const action = s.closed ? 'reopen' : 'close';
-          if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
-          try {
-            const resp = await fetch('/surveys/' + s.id + '/close', { method: 'POST' });
-            if (!resp.ok) throw new Error('Failed to ' + action + ' survey: ' + resp.status);
-            const updated = await resp.json();
-            const updatedId = (updated.id ?? updated.surveyId ?? updated.ID ?? updated.Id);
-            const updatedTitle = (updated.title ?? updated.name ?? '(untitled)');
-            const pastTense = (action === 'reopen') ? 'Reopened' : 'Closed';
-            status.textContent = pastTense + ' survey #' + (updatedId ?? 'unknown') + ' (' + updatedTitle + ').';
-            status.className = 'success';
-            loadSurveys();
-          } catch (e) {
-            status.textContent = e.message;
-            status.className = 'error';
-          }
-        };
-        li.appendChild(toggleBtn);
-      });
-    } catch (e) {
-      const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
     }
-  }
 
-  el('saveSurveyBtn').addEventListener('click', saveSurvey);
+
+    el('saveSurveyBtn').addEventListener('click', saveSurvey);
   el('refreshBtn').addEventListener('click', loadSurveys);
 
   renderQuestions();

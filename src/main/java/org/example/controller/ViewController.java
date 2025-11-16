@@ -24,4 +24,11 @@ public class ViewController {
         return "surveys-take";
     }
 
+    @GetMapping("/surveys/{id}/preview")
+    public String previewSurvey(@PathVariable Long id, Model model) {
+        model.addAttribute("surveyId", id);
+        model.addAttribute("preview", true);
+        return "surveys-preview";
+    }
+
 }
