@@ -21,11 +21,11 @@ Alongside Azure, this application is also now deployed on Google Cloud Platform 
 
 ### Contribution:
 
-- **Sahadeo, Andrew #101186368:** 
-- **Mohamed Yonis, Mahad #101226808:** 
-- **Hassan, Muhammad #101181439:** Back-end/Front-end/Testing for delete and share survey features, UML Diagrams, Documentation
-- **Evensen, Gabriel #101119814:** 
-- **Beldjehem, Tarik #101187965:** 
+- **Sahadeo, Andrew #101186368:** Back-end/Front-end/Testing for user class, setting up GCP, bug fixing, Documentation
+- **Mohamed Yonis, Mahad #101226808:** Back-end/Front-end/Testing for survey preview feature, bug fixing, Documentation
+- **Hassan, Muhammad #101181439:** Back-end/Front-end/Testing for delete & share survey features, UML Diagrams, bug fixing, Documentation
+- **Evensen, Gabriel #101119814:** Back-end/Front-end/Testing for user authentication feature, bug fixing, Documentation
+- **Beldjehem, Tarik #101187965:** Back-end/Front-end/Testing for closing survey feature, bug fixing, Documentation
 
 ### Next Sprint Plan:
 
