@@ -18,6 +18,11 @@ public class ViewController {
         return "surveys-create";
     }
 
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
     @GetMapping("/surveys/{id}/response")
     public String takeSurvey(@PathVariable Long id, Model model) {
         model.addAttribute("surveyId", id);
@@ -30,5 +35,4 @@ public class ViewController {
         model.addAttribute("preview", true);
         return "surveys-preview";
     }
-
 }
