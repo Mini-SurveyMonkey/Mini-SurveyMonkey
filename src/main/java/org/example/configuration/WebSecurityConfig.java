@@ -10,6 +10,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -17,8 +19,25 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/index", "/home").permitAll()
+                //Uncoment if you are testing
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.disable())
+
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/index",
+                                "/home",
+                                "/surveys",
+                                "/surveys/*",
+                                "/surveys/*/close",
+                                "/surveys/*/questions",
+                                "/surveys/*/questions/*/answers",
+                                "/surveys/*",
+                                "/surveys/*/close" ,
+                                "/surveys/*/response",
+                                "/surveys/*/answer",
+                                "/surveys/*/share"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin((form) -> form

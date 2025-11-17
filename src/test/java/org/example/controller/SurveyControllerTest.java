@@ -15,6 +15,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.example.configuration.WebSecurityConfig; // Import your Security Config
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import; // Import this for Security Config
+import org.springframework.security.test.context.support.WithMockUser; // Import for Mock Authentication
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,14 +31,19 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(WebSecurityConfig.class)
 @WebMvcTest(SurveyController.class)
 class SurveyControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    WebApplicationContext wac;
 
     @MockitoBean
     private SurveyRepository surveyRepository;
@@ -46,14 +59,21 @@ class SurveyControllerTest {
 
     @BeforeEach
     void setUp() {
-        User temp = new User("temp");
-        when(userRepository.findByUsername("temp")).thenReturn(Optional.of(temp));
+        User temp = new User("user", "password");
+        when(userRepository.findByUsername("user")).thenReturn(Optional.of(temp));
+
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(wac)
+                .apply(springSecurity())
+                .build();
     }
-    
+
     @Test
+    @WithMockUser(roles = {"USER"})
     void testCreateSurvey() throws Exception {
         Survey inputSurvey = new Survey();
         inputSurvey.setTitle("New Survey");
+
 
         Survey savedSurvey = new Survey();
         savedSurvey.setId(1L);
@@ -72,6 +92,7 @@ class SurveyControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void testAddQuestion() throws Exception {
         Long surveyId = 1L;
         Question inputQuestion = new Question();
@@ -102,6 +123,7 @@ class SurveyControllerTest {
     }
 
     @Test
+    @WithMockUser(roles = {"USER"})
     void testSubmitAnswer() throws Exception {
         Long surveyId = 1L;
         Long questionId = 2L;
