@@ -19,9 +19,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false)
-    private String password;
-
     @JsonIgnore // Ignore JSON loop
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Survey> surveys = new ArrayList<>();
@@ -30,11 +27,6 @@ public class User {
 
     public User(String username) { 
         this.username = username; 
-    }
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
     }
 
     public Long getId() { 

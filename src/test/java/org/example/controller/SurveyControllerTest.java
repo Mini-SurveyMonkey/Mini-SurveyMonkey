@@ -59,7 +59,7 @@ class SurveyControllerTest {
 
     @BeforeEach
     void setUp() {
-        User temp = new User("user", "password");
+        User temp = new User("user");
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(temp));
 
         mockMvc = MockMvcBuilders
