@@ -21,7 +21,7 @@ public class WebSecurityConfig {
         http
                 //Uncoment if you are testing
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.disable())
+//                .cors(cors -> cors.disable())
 
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
