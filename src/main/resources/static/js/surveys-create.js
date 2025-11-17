@@ -153,7 +153,6 @@
               ul.appendChild(li);
               return;
           }
-        };
         li.appendChild(toggleBtn);
 
         const shareBtn = document.createElement('button');
@@ -191,10 +190,11 @@
         };
         li.appendChild(deleteBtn);
         ul.appendChild(li);
-      });
-    } catch (e) {
+      }
+     catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
     }
+  }
 
 
     el('saveSurveyBtn').addEventListener('click', saveSurvey);
