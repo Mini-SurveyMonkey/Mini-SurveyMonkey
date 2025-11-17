@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Survey Preview</title>
+
+    <link rel="stylesheet" href="/css/surveys-preview.css">
+</head>
+<body>
+<a href="/">← Home</a>
+
+<h1>Survey Preview</h1>
+<p class="subtitle">This is a read-only preview of the survey as respondents will see it.</p>
+
+<div id="survey-root">
+    Loading survey...
+</div>
+
+<script th:inline="javascript">
+    const surveyId = /*[[${surveyId}]]*/ 0;
+</script>
+<script src="/js/surveys-preview.js"></script>
+</body>
+</html>

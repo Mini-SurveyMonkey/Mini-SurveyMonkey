@@ -23,9 +23,16 @@ public class ViewController {
         return "login";
     }
 
-
     @GetMapping("/surveys/{id}/response")
     public String takeSurvey(@PathVariable Long id, Model model) {
         model.addAttribute("surveyId", id);
-        return "surveys-take";}
+        return "surveys-take";
+    }
+
+    @GetMapping("/surveys/{id}/preview")
+    public String previewSurvey(@PathVariable Long id, Model model) {
+        model.addAttribute("surveyId", id);
+        model.addAttribute("preview", true);
+        return "surveys-preview";
+    }
 }

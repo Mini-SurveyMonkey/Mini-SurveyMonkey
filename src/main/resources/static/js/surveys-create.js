@@ -228,9 +228,9 @@
     } catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
     }
-  }
 
-  el('saveSurveyBtn').addEventListener('click', saveSurvey);
+
+    el('saveSurveyBtn').addEventListener('click', saveSurvey);
   el('refreshBtn').addEventListener('click', loadSurveys);
 
   el('copyBtn').onclick = function() {
