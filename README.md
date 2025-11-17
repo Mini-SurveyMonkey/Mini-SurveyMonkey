@@ -2,13 +2,15 @@
 A SpringBoot app with functionality to create, edit, and review surveys.
 Inspired by the SurveyMonkey platform.
 
+### Updated Diagrams for Milestone 2
+
 ### Relational Database Schema:
 
-![Schema Diagram](src/main/resources/Diagrams/Relational_Database_Schema.png)
+![Schema Diagram](src/main/resources/Diagrams/Milestone-2-Relational-Database-Schema.png)
 
 ### UML Class Diagram:
 
-![UML Class Diagram](src/main/resources/Diagrams/UML_Class_Diagram.png)
+![UML Class Diagram](src/main/resources/Diagrams/Milestone-2-UML-Class-Diagram.png)
 
 ### Progress:
 
