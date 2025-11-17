@@ -9,6 +9,9 @@
 <body>
   <div class="topnav">
     <a th:href="@{/}">&#8592; Home</a>
+    <form th:action="@{/logout}" method="post">
+      <input type="submit" value="Sign Out"/>
+    </form>
   </div>
 
   <h1>Create Survey</h1>
