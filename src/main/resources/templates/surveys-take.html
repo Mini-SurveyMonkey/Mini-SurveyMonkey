@@ -6,7 +6,13 @@
     <link rel="stylesheet" href="/css/surveys-take.css">
 </head>
 <body>
-<a href="/">← Home</a>
+<div class="topnav">
+    <a th:href="@{/}">&#8592; Home</a>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out"/>
+    </form>
+</div>
+<!--<a href="/">← Home</a>-->
 
 <div id="survey-root">
     Loading survey...

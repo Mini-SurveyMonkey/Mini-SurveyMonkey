@@ -7,6 +7,13 @@
   <link rel="stylesheet" th:href="@{/css/survey.css}">
 </head>
 <body>
+    <div class="topnav">
+        <a th:href="@{/}">&#8592; Home</a>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Sign Out"/>
+        </form>
+    </div>
+
   <h1>Mini Survey Monkey</h1>
   <p>Choose an action:</p>
   <p><a class="button" th:href="@{/surveys/new}">Create a Survey</a></p>
