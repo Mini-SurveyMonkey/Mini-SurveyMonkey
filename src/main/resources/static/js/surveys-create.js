@@ -111,8 +111,8 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (!resp.ok) { 
-        const txt = await resp.text(); throw new Error('Server returned ' + resp.status + ': ' + txt); 
+      if (!resp.ok) {
+        const txt = await resp.text(); throw new Error('Server returned ' + resp.status + ': ' + txt);
       }
       const saved = await resp.json();
       const savedId = (saved.id ?? saved.surveyId ?? saved.idSurvey ?? saved.ID ?? saved.Id);
@@ -123,7 +123,7 @@
 
       // Clear all fields
       el('surveyTitle').value = '';
-      questions.length = 0; 
+      questions.length = 0;
       renderQuestions();
       choiceArea.value = '';
       minInput.value = '';
@@ -153,7 +153,7 @@
               ul.appendChild(li);
               return;
           }
-        };
+
         li.appendChild(toggleBtn);
 
         const shareBtn = document.createElement('button');
@@ -191,10 +191,9 @@
         };
         li.appendChild(deleteBtn);
         ul.appendChild(li);
-      });
-    } catch (e) {
+      } catch (e) {
       const li = document.createElement('li'); li.className = 'error'; li.textContent = e.message; ul.appendChild(li);
-    }
+    }}
 
 
     el('saveSurveyBtn').addEventListener('click', saveSurvey);
