@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -15,13 +16,17 @@ import java.util.List;
 @RestController
 public class SurveyController {
     @Autowired
-    private SurveyRepository surveyRepository;
+    private final SurveyRepository surveyRepository;
     @Autowired
     private QuestionRepository questionRepository;
     @Autowired
     private AnswerRepository answerRepository;
     @Autowired
     private UserRepository userRepository;
+
+    public SurveyController(SurveyRepository surveyRepository) {
+        this.surveyRepository = surveyRepository;
+    }
 
     @PostMapping("/surveys")
     public Survey createSurvey(@RequestBody Survey survey) { 
@@ -42,6 +47,11 @@ public class SurveyController {
 
     @PostMapping("/surveys/{surveyId}/questions/{questionId}/answers")
     public Answer submitAnswer(@PathVariable Long surveyId, @PathVariable Long questionId, @RequestBody Answer answer) {
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow();
+        if (survey.isClosed()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Survey is closed");
+        }
+
         return answerRepository.save(answer);
     }
 

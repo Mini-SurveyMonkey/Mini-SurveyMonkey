@@ -22,5 +22,9 @@
     const surveyId = /*[[${surveyId}]]*/ 0;
 </script>
 <script src="/js/surveys-take.js"></script>
+<script th:inline="javascript">
+    const surveyId = /*[[${surveyId}]]*/ 0;
+    const surveyClosed = /*[[${closed}]]*/ false;
+</script>
 </body>
 </html>

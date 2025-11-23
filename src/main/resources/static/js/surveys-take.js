@@ -10,6 +10,66 @@
  *  4. Later i will implement so it sends JSON back to the backend
 */
 
+function renderSurveyReadOnly(survey) {
+    const root = document.getElementById("survey-root");
+    root.innerHTML = "";
+
+    const titleEl = document.createElement("h2");
+    titleEl.textContent = survey.title;
+    root.appendChild(titleEl);
+
+    const note = document.createElement("p");
+    note.textContent = "This survey is closed. You cannot submit answers.";
+    note.style.color = "#777";
+    root.appendChild(note);
+
+    const form = document.createElement("form");
+    form.classList.add("readOnly");
+
+    survey.questions.forEach(q => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("question");
+
+        const p = document.createElement("p");
+        p.textContent = q.questionText;
+        wrapper.appendChild(p);
+
+        const name = "q" + q.id;
+
+        if (q.type === "OPEN_TEXT") wrapper.appendChild(createPreviewTextInput(name));
+        if (q.type === "NUMBER") wrapper.appendChild(createPreviewNumberInput(name, q.minValue, q.maxValue));
+        if (q.type === "CHOICE") wrapper.appendChild(createPreviewChoiceInputs(name, q.options));
+
+        form.appendChild(wrapper);
+    });
+
+    root.appendChild(form);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadSurveyForResponse();
+});
+
+async function loadSurveyForResponse() {
+    const root = document.getElementById("survey-root");
+    root.textContent = "Loading survey...";
+
+    try {
+        const response = await fetch(`/surveys/${surveyId}`);
+        const survey = await response.json();
+
+        if (surveyClosed) {
+            renderSurveyReadOnly(survey);   // ⭐ Same style as preview
+        } else {
+            renderSurveyForAnswering(survey);
+        }
+
+    } catch (e) {
+        root.textContent = "Error loading survey.";
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
     loadSurvey();
 });
