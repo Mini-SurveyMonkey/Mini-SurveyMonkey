@@ -45,42 +45,110 @@
             if (!resp.ok) {
                 throw new Error('Failed to load surveys');
             }
+
             const data = await resp.json();
+            ul.innerHTML = '';
 
             if (!Array.isArray(data) || data.length === 0) {
                 ul.innerHTML = '<li class="no-surveys muted">No surveys yet.</li>';
                 return;
             }
 
-            ul.innerHTML = '';
             data.forEach(s => {
                 const li = document.createElement('li');
                 li.className = 'survey-item';
 
                 const title = document.createElement('div');
                 title.className = 'survey-title';
-                title.textContent = s.title || '(untitled survey)';
+                title.textContent = `#${s.id} — ${s.title || '(untitled survey)'}`;
 
                 const actions = document.createElement('div');
                 actions.className = 'survey-actions';
 
-                const previewLink = document.createElement('a');
-                previewLink.href = `/surveys/${s.id}/preview`;
-                previewLink.textContent = 'Preview';
-                previewLink.className = 'action-link';
+                // Preview
+                const preview = document.createElement('a');
+                preview.href = `/surveys/${s.id}/preview`;
+                preview.textContent = 'Preview';
+                preview.className = 'action-link';
+                actions.appendChild(preview);
 
-                const takeLink = document.createElement('a');
-                takeLink.href = `/surveys/${s.id}/response`;
-                takeLink.textContent = 'Take';
-                takeLink.className = 'action-link primary';
+                // Take
+                const take = document.createElement('a');
+                take.href = `/surveys/${s.id}/response`;
+                take.textContent = 'Take';
+                take.className = 'action-link primary';
+                actions.appendChild(take);
 
-                actions.appendChild(previewLink);
-                actions.appendChild(takeLink);
+                // Close/Reopen
+                const toggle = document.createElement('a');
+                toggle.textContent = s.closed ? 'Reopen' : 'Close';
+                toggle.className = 'action-link';
+                toggle.href = '#';
+                toggle.onclick = async (e) => {
+                    e.preventDefault();
+                    const action = s.closed ? 'reopen' : 'close';
+                    if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
+
+                    const r = await fetch(`/surveys/${s.id}/close`, { method: 'POST' });
+                    if (r.ok) {
+                        loadSurveys();
+                    } else {
+                        alert('Failed to update survey status');
+                    }
+                };
+                actions.appendChild(toggle);
+
+                // Delete
+                const del = document.createElement('a');
+                del.textContent = 'Delete';
+                del.className = 'action-link';
+                del.href = '#';
+                del.onclick = async (e) => {
+                    e.preventDefault();
+                    if (!confirm(`Delete survey #${s.id}?`)) return;
+
+                    const r = await fetch(`/surveys/${s.id}`, { method: 'DELETE' });
+                    if (r.ok) {
+                        loadSurveys();
+                    } else {
+                        alert('Failed to delete survey');
+                    }
+                };
+                actions.appendChild(del);
+
+                // Share
+                const share = document.createElement('a');
+                share.textContent = 'Share';
+                share.className = 'action-link';
+                share.href = '#';
+                share.onclick = async (e) => {
+                    e.preventDefault();
+                    try {
+                        const r = await fetch(`/surveys/${s.id}/share`);
+                        if (!r.ok) {
+                            alert('Failed to fetch share link');
+                            return;
+                        }
+                        const link = await r.text();
+
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(link);
+                            alert('Share link copied to clipboard:\n' + link);
+                        } else {
+                            // Fallback if clipboard API not available
+                            prompt('Copy this link:', link);
+                        }
+                    } catch (err) {
+                        alert('Error while generating share link');
+                    }
+                };
+                actions.appendChild(share);
 
                 li.appendChild(title);
                 li.appendChild(actions);
                 ul.appendChild(li);
             });
+
         } catch (e) {
             ul.innerHTML = `<li class="error">${e.message}</li>`;
         }
