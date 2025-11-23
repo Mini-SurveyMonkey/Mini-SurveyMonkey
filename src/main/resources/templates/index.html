@@ -1,21 +1,94 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Mini Survey Monkey</title>
-  <link rel="stylesheet" th:href="@{/css/survey.css}">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mini Survey Monkey</title>
+    <link rel="stylesheet" th:href="@{/css/survey.css}">
 </head>
 <body>
-    <div class="topnav">
-        <a th:href="@{/}">&#8592; Home</a>
-        <form th:action="@{/logout}" method="post">
-            <input type="submit" value="Sign Out"/>
-        </form>
+
+<div class="topnav">
+    <a th:href="@{/}">&#8592; Home</a>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out" class="sign-out"/>
+    </form>
+</div>
+
+<h1>Mini Survey Monkey</h1>
+<p class="muted">Create new surveys or revisit your existing ones.</p>
+
+<section class="card create-section">
+    <h2>Create a new survey</h2>
+    <p class="muted">Start a new survey and add your own questions.</p>
+    <a class="button primary" th:href="@{/surveys/new}">+ Create Survey</a>
+</section>
+
+<section class="card existing-section">
+    <div class="existing-header">
+        <h2>Existing Surveys</h2>
+        <button id="refreshBtn" class="button secondary" type="button">Refresh</button>
     </div>
 
-  <h1>Mini Survey Monkey</h1>
-  <p>Choose an action:</p>
-  <p><a class="button" th:href="@{/surveys/new}">Create a Survey</a></p>
+    <ul id="surveysUl">
+        <li class="no-surveys muted">No surveys yet.</li>
+    </ul>
+</section>
+
+<script>
+    async function loadSurveys() {
+        const ul = document.getElementById('surveysUl');
+        ul.innerHTML = '<li class="muted">Loading…</li>';
+
+        try {
+            const resp = await fetch('/surveys');
+            if (!resp.ok) {
+                throw new Error('Failed to load surveys');
+            }
+            const data = await resp.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                ul.innerHTML = '<li class="no-surveys muted">No surveys yet.</li>';
+                return;
+            }
+
+            ul.innerHTML = '';
+            data.forEach(s => {
+                const li = document.createElement('li');
+                li.className = 'survey-item';
+
+                const title = document.createElement('div');
+                title.className = 'survey-title';
+                title.textContent = s.title || '(untitled survey)';
+
+                const actions = document.createElement('div');
+                actions.className = 'survey-actions';
+
+                const previewLink = document.createElement('a');
+                previewLink.href = `/surveys/${s.id}/preview`;
+                previewLink.textContent = 'Preview';
+                previewLink.className = 'action-link';
+
+                const takeLink = document.createElement('a');
+                takeLink.href = `/surveys/${s.id}/response`;
+                takeLink.textContent = 'Take';
+                takeLink.className = 'action-link primary';
+
+                actions.appendChild(previewLink);
+                actions.appendChild(takeLink);
+
+                li.appendChild(title);
+                li.appendChild(actions);
+                ul.appendChild(li);
+            });
+        } catch (e) {
+            ul.innerHTML = `<li class="error">${e.message}</li>`;
+        }
+    }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadSurveys);
+    loadSurveys();
+</script>
+
 </body>
 </html>
