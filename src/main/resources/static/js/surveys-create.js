@@ -1,269 +1,175 @@
-(function() {
-  const questions = [];
+(function () {
+    const questions = [];
 
-  const el = (id) => document.getElementById(id);
+    const el = (id) => document.getElementById(id);
 
-  el('shareArea').style.display = 'none';
-  el('shareLink').value = '';
+    const questionsList = el('questionsList');
+    const choiceBlock = el('choiceOptionsBlock');
+    const numberBlock = el('numberRangeBlock');
+    const choiceArea = el('choiceOptions');
+    const minInput = el('minValue');
+    const maxInput = el('maxValue');
+    const qType = el('qType');
+    const status = el('status');
 
-  const questionsList = el('questionsList');
-  const choiceBlock = el('choiceOptionsBlock');
-  const numberBlock = el('numberRangeBlock');
-  const choiceArea = el('choiceOptions');
-  const minInput = el('minValue');
-  const maxInput = el('maxValue');
-  const qType = el('qType');
-  const status = el('status');
+    function renderQuestions() {
+        questionsList.innerHTML = '';
+        if (questions.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'muted';
+            p.textContent = 'No questions added yet.';
+            questionsList.appendChild(p);
+            return;
+        }
+        questions.forEach((q, idx) => {
+            const div = document.createElement('div');
+            div.className = 'question';
 
-  function renderQuestions() {
-    questionsList.innerHTML = '';
-    if (questions.length === 0) {
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.textContent = 'No questions added yet.';
-      questionsList.appendChild(p);
-      return;
-    }
-    questions.forEach((q, idx) => {
-      const div = document.createElement('div');
-      div.className = 'question';
-      const title = document.createElement('div');
-      title.innerHTML = '<strong>Q' + (idx + 1) + ':</strong> ' + q.questionText;
-      const meta = document.createElement('div');
-      meta.className = 'meta';
-      let extra = '';
-      if (q.type === 'NUMBER') {
-        const r = [];
-        if (q.minValue !== null && q.minValue !== undefined) r.push('min=' + q.minValue);
-        if (q.maxValue !== null && q.maxValue !== undefined) r.push('max=' + q.maxValue);
-        if (r.length) extra = ' · ' + r.join(', ');
-      } else if (q.type === 'CHOICE' && q.options && q.options.length) {
-        extra = ' · Options: ' + q.options.join(', ');
-      }
-      meta.textContent = 'Type: ' + q.type + extra;
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = 'Remove';
-      removeBtn.onclick = () => { questions.splice(idx, 1); renderQuestions(); };
-      div.appendChild(title);
-      div.appendChild(meta);
-      div.appendChild(removeBtn);
-      questionsList.appendChild(div);
-    });
-  }
+            const title = document.createElement('div');
+            title.innerHTML = '<strong>Q' + (idx + 1) + ':</strong> ' + q.questionText;
 
-  function toIntOrNull(v) {
-    const s = String(v ?? '').trim();
-    if (s === '') return null;
-    const n = Number(s);
-    return Number.isFinite(n) ? Math.trunc(n) : null;
-  }
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            let extra = '';
 
-  qType.addEventListener('change', () => {
-    const t = qType.value;
-    choiceBlock.style.display = (t === 'CHOICE') ? 'block' : 'none';
-    numberBlock.style.display = (t === 'NUMBER') ? 'block' : 'none';
-  });
-
-  el('addQuestionBtn').addEventListener('click', () => {
-    const text = el('qText').value.trim();
-    const type = qType.value;
-    if (!text) { alert('Please enter the question text.'); return; }
-
-    const q = { questionText: text, type: type, options: [] };
-
-    if (type === 'CHOICE') {
-      const lines = choiceArea.value.split('\n').map(s => s.trim()).filter(Boolean);
-      q.options = lines;
-    }
-
-    if (type === 'NUMBER') {
-      const minV = toIntOrNull(minInput.value);
-      const maxV = toIntOrNull(maxInput.value);
-      if (minV !== null && maxV !== null && minV > maxV) {
-        alert('Min must be ≤ Max.');
-        return;
-      }
-      if (minV !== null) q.minValue = minV;
-      if (maxV !== null) q.maxValue = maxV;
-    }
-
-    questions.push(q);
-
-    // reset all fields
-    el('qText').value = '';
-    choiceArea.value = '';
-    minInput.value = '';
-    maxInput.value = '';
-    renderQuestions();
-  });
-
-  async function saveSurvey() {
-    status.textContent = '';
-    const title = el('surveyTitle').value.trim();
-    if (!title) { status.textContent = 'Please enter a title.'; status.className = 'error'; return; }
-    if (questions.length === 0) { status.textContent = 'Please add at least one question.'; status.className = 'error'; return; }
-
-    const payload = { title: title, questions: questions };
-
-    try {
-      const resp = await fetch('/surveys', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (!resp.ok) {
-        const txt = await resp.text(); throw new Error('Server returned ' + resp.status + ': ' + txt);
-      }
-      const saved = await resp.json();
-      const savedId = (saved.id ?? saved.surveyId ?? saved.idSurvey ?? saved.ID ?? saved.Id);
-      const savedTitle = (saved.title ?? saved.name ?? title ?? '(untitled)');
-
-      status.textContent = 'Saved survey #' + (savedId ?? 'unknown') + ' (' + savedTitle + ').';
-      status.className = 'success';
-
-      // Clear all fields
-      el('surveyTitle').value = '';
-      questions.length = 0;
-      renderQuestions();
-      choiceArea.value = '';
-      minInput.value = '';
-      maxInput.value = '';
-
-      loadSurveys();
-    } catch (e) {
-      status.textContent = e.message;
-      status.className = 'error';
-    }
-  }
-
-    async function loadSurveys() {
-        el('shareArea').style.display = 'none';
-        el('shareLink').value = '';
-
-        const ul = el('surveysUl');
-        ul.innerHTML = '';
-
-        try {
-            const resp = await fetch('/surveys', { method: 'GET' });
-            if (!resp.ok) throw new Error('Failed to fetch surveys: ' + resp.status);
-
-            const data = await resp.json();
-
-            if (!Array.isArray(data) || data.length === 0) {
-                const li = document.createElement('li');
-                li.className = 'muted';
-                li.textContent = 'No surveys yet.';
-                ul.appendChild(li);
-                return;
+            if (q.type === 'NUMBER') {
+                const r = [];
+                if (q.minValue !== null && q.minValue !== undefined) r.push('min=' + q.minValue);
+                if (q.maxValue !== null && q.maxValue !== undefined) r.push('max=' + q.maxValue);
+                if (r.length) extra = ' · ' + r.join(', ');
+            } else if (q.type === 'CHOICE' && q.options && q.options.length) {
+                extra = ' · Options: ' + q.options.join(', ');
             }
 
-            data.forEach(s => {
-                const li = document.createElement('li');
+            meta.textContent = 'Type: ' + q.type + extra;
 
-                const span = document.createElement('span');
-                span.textContent = `#${s.id} — ${s.title ?? '(untitled)'}`;
-                li.appendChild(span);
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'Remove';
+            removeBtn.onclick = () => {
+                questions.splice(idx, 1);
+                renderQuestions();
+            };
 
-                // View Survey JSON
-                const btn = document.createElement('button');
-                btn.textContent = 'View JSON';
-                btn.classList.add('surveyBtn');
-                btn.onclick = async () => {
-                  try { const r = await fetch('/surveys/' + s.id); const j = await r.json(); alert(JSON.stringify(j, null, 2)); } catch (_) {}
-                };
-                li.appendChild(btn);
+            div.appendChild(title);
+            div.appendChild(meta);
+            div.appendChild(removeBtn);
+            questionsList.appendChild(div);
+        });
+    }
 
-                // Preview Survey
-                const previewBtn = document.createElement('button');
-                previewBtn.textContent = 'Preview';
-                previewBtn.classList.add('surveyBtn');
-                previewBtn.onclick = () => {
-                    window.location.href = '/surveys/' + s.id + '/preview';
-                };
-                li.appendChild(previewBtn);
+    function toIntOrNull(v) {
+        const s = String(v ?? '').trim();
+        if (s === '') return null;
+        const n = Number(s);
+        return Number.isFinite(n) ? Math.trunc(n) : null;
+    }
 
-                // Close or reopen Survey
-                const toggleBtn = document.createElement('button');
-                toggleBtn.textContent = s.closed ? 'Reopen' : 'Close';
-                toggleBtn.classList.add('surveyBtn');
-                toggleBtn.onclick = async () => {
-                  const action = s.closed ? 'reopen' : 'close';
-                  if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
-                  try {
-                    const resp = await fetch('/surveys/' + s.id + '/close', { method: 'POST' });
-                    if (!resp.ok) throw new Error('Failed to ' + action + ' survey: ' + resp.status);
-                    const updated = await resp.json();
-                    const updatedId = (updated.id ?? updated.surveyId ?? updated.ID ?? updated.Id);
-                    const updatedTitle = (updated.title ?? updated.name ?? '(untitled)');
-                    const pastTense = (action === 'reopen') ? 'Reopened' : 'Closed';
-                    status.textContent = pastTense + ' survey #' + (updatedId ?? 'unknown') + ' (' + updatedTitle + ').';
-                    status.className = 'success';
-                    loadSurveys();
-                  } catch (e) {
-                    status.textContent = e.message;
-                    status.className = 'error';
-                  }
-                };
-                li.appendChild(toggleBtn);
+    qType.addEventListener('change', () => {
+        const t = qType.value;
+        choiceBlock.style.display = t === 'CHOICE' ? 'block' : 'none';
+        numberBlock.style.display = t === 'NUMBER' ? 'block' : 'none';
+    });
 
-                // Delete Survey
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'surveyBtn';
-                deleteBtn.onclick = async () => {
-                    if (!confirm(`Delete survey #${s.id}?`)) return;
-                    try {
-                        const resp = await fetch(`/surveys/${s.id}`, { method: 'DELETE' });
-                        if (!resp.ok) throw new Error('Failed to delete survey');
-                        status.textContent = `Deleted survey #${s.id}`;
-                        status.className = 'success';
-                        loadSurveys();
-                    } catch (e) {
-                        status.textContent = e.message;
-                        status.className = 'error';
-                    }
-                };
-                li.appendChild(deleteBtn);
+    el('addQuestionBtn').addEventListener('click', () => {
+        const text = el('qText').value.trim();
+        const type = qType.value;
 
-                // Share Survey
-                const shareBtn = document.createElement('button');
-                shareBtn.textContent = 'Share';
-                shareBtn.className = 'surveyBtn';
-                shareBtn.onclick = async () => {
-                    try {
-                        const resp = await fetch(`/surveys/${s.id}/share`);
-                        if (!resp.ok) throw new Error('Failed to fetch share link');
-                        const link = await resp.text();
-                        el('shareLink').value = link;
-                        el('shareArea').style.display = 'flex';
-                    } catch (e) {
-                        alert(e.message);
-                    }
-                };
-                li.appendChild(shareBtn);
+        if (!text) {
+            alert('Please enter the question text.');
+            return;
+        }
 
-                ul.appendChild(li);
+        const q = { questionText: text, type: type, options: [] };
+
+        if (type === 'CHOICE') {
+            const lines = choiceArea.value
+                .split('\n')
+                .map((s) => s.trim())
+                .filter(Boolean);
+            q.options = lines;
+        }
+
+        if (type === 'NUMBER') {
+            const minV = toIntOrNull(minInput.value);
+            const maxV = toIntOrNull(maxInput.value);
+
+            if (minV !== null && maxV !== null && minV > maxV) {
+                alert('Min must be ≤ Max.');
+                return;
+            }
+            if (minV !== null) q.minValue = minV;
+            if (maxV !== null) q.maxValue = maxV;
+        }
+
+        questions.push(q);
+
+        // Reset fields
+        el('qText').value = '';
+        choiceArea.value = '';
+        minInput.value = '';
+        maxInput.value = '';
+        renderQuestions();
+    });
+
+    async function saveSurvey() {
+        status.textContent = '';
+        status.className = 'muted';
+
+        const title = el('surveyTitle').value.trim();
+        if (!title) {
+            status.textContent = 'Please enter a title.';
+            status.className = 'error';
+            return;
+        }
+
+        if (questions.length === 0) {
+            status.textContent = 'Please add at least one question.';
+            status.className = 'error';
+            return;
+        }
+
+        const payload = { title: title, questions: questions };
+
+        try {
+            const resp = await fetch('/surveys', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
 
+            if (!resp.ok) {
+                const txt = await resp.text();
+                throw new Error('Server returned ' + resp.status + ': ' + txt);
+            }
+
+            const saved = await resp.json();
+            const savedId =
+                saved.id ??
+                saved.surveyId ??
+                saved.idSurvey ??
+                saved.ID ??
+                saved.Id;
+            const savedTitle = saved.title ?? saved.name ?? title ?? '(untitled)';
+
+            status.textContent =
+                'Saved survey #' + (savedId ?? 'unknown') + ' (' + savedTitle + ').';
+            status.className = 'success';
+
+            // Clear all fields + question list
+            el('surveyTitle').value = '';
+            questions.length = 0;
+            renderQuestions();
+            choiceArea.value = '';
+            minInput.value = '';
+            maxInput.value = '';
         } catch (e) {
-            const li = document.createElement('li');
-            li.className = 'error';
-            li.textContent = e.message;
-            ul.appendChild(li);
+            status.textContent = e.message;
+            status.className = 'error';
         }
     }
 
-
     el('saveSurveyBtn').addEventListener('click', saveSurvey);
-  el('refreshBtn').addEventListener('click', loadSurveys);
 
-  el('copyBtn').onclick = function() {
-      const input = el('shareLink');
-      input.select();
-      document.execCommand('copy');
-      alert('Link copied!');
-  };
-
-  renderQuestions();
-  loadSurveys();
+    // Initial render
+    renderQuestions();
 })();
