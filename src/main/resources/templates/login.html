@@ -1,19 +1,39 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Log in</title>
+    <link href="login.css" th:href="@{/css/login.css}" rel="stylesheet">
 </head>
 <body>
-<div th:if="${param.error}">
-    Invalid username and password.
+<div class="container">
+    <!-- Login Card -->
+    <div class="login-card">
+        <h1>Log in</h1>
+        <p class="subtitle">Enter your credentials to access surveys.</p>
+
+        <!-- Messages -->
+        <div th:if="${param.error}" class="message error">
+            Invalid username and password.
+        </div>
+        <div th:if="${param.logout}" class="message success">
+            You have been logged out.
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post">
+            <div class="form-group">
+                <label for="username">User Name</label>
+                <input type="text" id="username" name="username" required />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+    </div>
 </div>
-<div th:if="${param.logout}">
-    You have been logged out.
-</div>
-<form th:action="@{/login}" method="post">
-    <div><label> User Name : <input type="text" name="username"/> </label></div>
-    <div><label> Password: <input type="password" name="password"/> </label></div>
-    <div><input type="submit" value="Sign In"/></div>
-</form>
 </body>
 </html>

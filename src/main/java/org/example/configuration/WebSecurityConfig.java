@@ -36,7 +36,8 @@ public class WebSecurityConfig {
                                 "/surveys/*/close" ,
                                 "/surveys/*/response",
                                 "/surveys/*/answer",
-                                "/surveys/*/share"
+                                "/surveys/*/share",
+                                "/css/*"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
