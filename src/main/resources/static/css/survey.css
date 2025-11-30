@@ -430,3 +430,9 @@ button[type="submit"]:hover {
     padding-top: 1.25rem;
     margin-top: 1.25rem;
 }
+
+#results-root {
+    margin-top: 0.5rem;
+    max-height: 600px;
+    overflow-y: auto;
+}

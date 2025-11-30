@@ -127,6 +127,13 @@ class SurveyControllerTest {
     void testSubmitAnswer() throws Exception {
         Long surveyId = 1L;
         Long questionId = 2L;
+
+        Survey survey = new Survey();
+        survey.setId(surveyId);
+
+        Question question = new Question();
+        question.setId(questionId);
+
         Answer inputAnswer = new Answer();
         inputAnswer.setAnswerText("Sample answer");
 
@@ -134,6 +141,8 @@ class SurveyControllerTest {
         savedAnswer.setId(10L);
         savedAnswer.setAnswerText("Sample answer");
 
+        when(surveyRepository.findById(surveyId)).thenReturn(Optional.of(survey));
+        when(questionRepository.findById(questionId)).thenReturn(Optional.of(question));
         when(answerRepository.save(any(Answer.class))).thenReturn(savedAnswer);
 
         mockMvc.perform(post("/surveys/{surveyId}/questions/{questionId}/answers", surveyId, questionId)
@@ -143,6 +152,8 @@ class SurveyControllerTest {
                 .andExpect(jsonPath("$.id").value(10))
                 .andExpect(jsonPath("$.answerText").value("Sample answer"));
 
+        verify(surveyRepository).findById(surveyId);
+        verify(questionRepository).findById(questionId);
         verify(answerRepository).save(any(Answer.class));
     }
 

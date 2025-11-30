@@ -35,4 +35,10 @@ public class ViewController {
         model.addAttribute("preview", true);
         return "surveys-preview";
     }
+
+    @GetMapping("/surveys/{id}/results")
+    public String surveyResults(@PathVariable Long id, Model model) {
+        model.addAttribute("surveyId", id);
+        return "surveys-results";
+    }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class SurveyController {
@@ -41,7 +41,16 @@ public class SurveyController {
     }
 
     @PostMapping("/surveys/{surveyId}/questions/{questionId}/answers")
-    public Answer submitAnswer(@PathVariable Long surveyId, @PathVariable Long questionId, @RequestBody Answer answer) {
+    public Answer submitAnswer(@PathVariable Long surveyId,
+                               @PathVariable Long questionId,
+                               @RequestBody Answer answer) {
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow();
+        Question question = questionRepository.findById(questionId).orElseThrow();
+
+        // Link the answer to its survey and question
+        answer.setSurvey(survey);
+        answer.setQuestion(question);
+
         return answerRepository.save(answer);
     }
 
@@ -68,6 +77,90 @@ public class SurveyController {
     public ResponseEntity<Void> deleteSurvey(@PathVariable Long id) {
         surveyRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // NEW: aggregated results for charts
+    @GetMapping("/api/surveys/{surveyId}/results")
+    public Map<String, Object> getSurveyResults(@PathVariable Long surveyId) {
+        Survey survey = surveyRepository.findById(surveyId).orElseThrow();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("title", survey.getTitle());
+
+        List<Map<String, Object>> questionResults = new ArrayList<>();
+
+        for (Question q : survey.getQuestions()) {
+            Map<String, Object> qMap = new HashMap<>();
+            qMap.put("questionId", q.getId());
+            qMap.put("questionText", q.getQuestionText());
+            qMap.put("type", q.getType()); // "NUMBER", "CHOICE", etc.
+
+            List<Answer> answers =
+                    answerRepository.findBySurveyIdAndQuestionId(surveyId, q.getId());
+
+            if ("NUMBER".equalsIgnoreCase(q.getType())) {
+                qMap.put("bins", computeNumberBinsSimple(q, answers));
+            } else if ("CHOICE".equalsIgnoreCase(q.getType())) {
+                qMap.put("counts", computeChoiceCountsSimple(answers));
+            }
+
+            questionResults.add(qMap);
+        }
+
+        result.put("questions", questionResults);
+        return result;
+    }
+
+    // Helpers for NUMBER questions: build bins list [{label, count}, ...]
+    private List<Map<String, Object>> computeNumberBinsSimple(Question q, List<Answer> answers) {
+        List<Map<String, Object>> bins = new ArrayList<>();
+
+        if (answers.isEmpty()) {
+            return bins;
+        }
+
+        int min = (q.getMinValue() != null) ? q.getMinValue() : 0;
+        int max = (q.getMaxValue() != null) ? q.getMaxValue() : 10;
+
+        int range = Math.max(1, max - min + 1);
+        int binCount = 5;
+        int binSize = Math.max(1, range / binCount);
+
+        long[] counts = new long[binCount];
+
+        for (Answer a : answers) {
+            try {
+                int v = Integer.parseInt(a.getAnswerText());
+                int idx = (v - min) / binSize;
+                if (idx < 0) idx = 0;
+                if (idx >= binCount) idx = binCount - 1;
+                counts[idx]++;
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        for (int i = 0; i < binCount; i++) {
+            int from = min + i * binSize;
+            int to = (i == binCount - 1) ? max : (from + binSize - 1);
+
+            Map<String, Object> bin = new HashMap<>();
+            bin.put("label", from + "–" + to);
+            bin.put("count", counts[i]);
+            bins.add(bin);
+        }
+
+        return bins;
+    }
+
+    // Helpers for CHOICE questions: build { option -> count }
+    private Map<String, Long> computeChoiceCountsSimple(List<Answer> answers) {
+        Map<String, Long> map = new HashMap<>();
+        for (Answer a : answers) {
+            String val = a.getAnswerText();
+            if (val == null || val.isBlank()) continue;
+            map.put(val, map.getOrDefault(val, 0L) + 1);
+        }
+        return map;
     }
 
 }

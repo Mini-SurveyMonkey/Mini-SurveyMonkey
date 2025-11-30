@@ -177,17 +177,47 @@ function createChoiceInputs(name, options) {
  */
 function handleSubmit(form, survey) {
     const formData = new FormData(form);
-    const answers = {};
+    const answersByQuestion = {};
 
+    // Build answers map: questionId -> array of selected/entered values
     survey.questions.forEach((q) => {
         const key = `q${q.id}`;
         if (q.type === "CHOICE") {
-            answers[q.id] = formData.getAll(key);      // multiple selections
+            answersByQuestion[q.id] = formData.getAll(key);   // array
         } else {
-            answers[q.id] = formData.get(key);         // single value
+            const value = formData.get(key);
+            answersByQuestion[q.id] = value !== null ? [value] : [];
         }
     });
 
-    console.log("Survey responses:", answers);
-    alert("Survey submitted! Check the console for the JSON output.");
+    console.log("Survey responses:", answersByQuestion);
+
+    // Send each answer to the backend
+    const requests = [];
+
+    survey.questions.forEach((q) => {
+        const values = answersByQuestion[q.id] || [];
+        values.forEach((val) => {
+            if (val === null || val === "") return;
+
+            requests.push(
+                fetch(`/surveys/${survey.id}/questions/${q.id}/answers`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ answerText: String(val) })
+                })
+            );
+        });
+    });
+
+    Promise.all(requests)
+        .then(() => {
+            alert("Survey submitted!");
+        })
+        .catch((err) => {
+            console.error("Error submitting answers:", err);
+            alert("There was an error submitting your answers.");
+        });
 }

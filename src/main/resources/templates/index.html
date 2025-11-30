@@ -79,6 +79,13 @@
                 take.className = 'action-link primary';
                 actions.appendChild(take);
 
+                // Results (NEW)
+                const results = document.createElement('a');
+                results.href = `/surveys/${s.id}/results`;
+                results.textContent = 'Results';
+                results.className = 'action-link';
+                actions.appendChild(results);
+
                 // Close/Reopen
                 const toggle = document.createElement('a');
                 toggle.textContent = s.closed ? 'Reopen' : 'Close';
