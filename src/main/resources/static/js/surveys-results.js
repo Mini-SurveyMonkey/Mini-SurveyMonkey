@@ -1,4 +1,7 @@
-document.addEventListener("DOMContentLoaded", loadResults);
+if (!window.__resultsPageInitialized) {
+    window.__resultsPageInitialized = true;
+    document.addEventListener("DOMContentLoaded", loadResults);
+}
 
 /**
  * Load results JSON for the current survey and render charts.
@@ -8,7 +11,7 @@ async function loadResults() {
     root.textContent = "Loading results...";
 
     try {
-        const resp = await fetch(`/surveys/${surveyId}/results`);
+        const resp = await fetch(`/api/surveys/${surveyId}/results`);
         if (!resp.ok) {
             throw new Error("Failed to load results");
         }
@@ -40,7 +43,8 @@ async function loadResults() {
             block.appendChild(heading);
 
             const canvas = document.createElement("canvas");
-            canvas.height = 200;
+            canvas.style.height = "350px";  // smaller, fixed
+            canvas.style.maxHeight = "350px";
             block.appendChild(canvas);
 
             root.appendChild(block);
