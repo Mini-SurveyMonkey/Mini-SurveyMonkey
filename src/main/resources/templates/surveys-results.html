@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Survey Results</title>
+    <link rel="stylesheet" th:href="@{/css/survey.css}">
+
+    <!-- Chart.js for histograms and pie charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="topnav">
+    <a th:href="@{/}">&#8592; Home</a>
+    <form th:action="@{/logout}" method="post">
+        <input type="submit" value="Sign Out" class="sign-out"/>
+    </form>
+</div>
+
+<div class="card">
+    <h1 id="survey-title">Survey Results</h1>
+    <p class="muted">
+        See how people responded to this survey. Number questions are shown as histograms,
+        and multiple-choice questions are shown as pie charts.
+    </p>
+
+    <div id="results-root">
+        <p class="muted">Loading results…</p>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const surveyId = /*[[${surveyId}]]*/ 0;
+</script>
+<script src="/js/surveys-results.js"></script>
+
+</body>
+</html>
