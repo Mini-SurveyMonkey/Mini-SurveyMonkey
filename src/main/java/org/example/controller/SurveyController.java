@@ -100,7 +100,7 @@ public class SurveyController {
 
             if ("NUMBER".equalsIgnoreCase(q.getType())) {
                 qMap.put("bins", computeNumberBinsSimple(q, answers));
-            } else if ("CHOICE".equalsIgnoreCase(q.getType())) {
+            } else if (q.getType().toUpperCase().startsWith("CHOICE")) {
                 qMap.put("counts", computeChoiceCountsSimple(answers));
             }
 
