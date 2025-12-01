@@ -5,37 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Mini Survey Monkey</title>
     <link rel="stylesheet" th:href="@{/css/survey.css}">
+
+    <!-- Initialize theme BEFORE paint -->
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const stored = localStorage.getItem('msm-theme');
+            if (stored === 'dark') {
+                root.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
 </head>
 <body>
 
-<div class="topnav">
-    <a th:href="@{/}">&#8592; Home</a>
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Sign Out" class="sign-out"/>
-    </form>
-</div>
-
-<h1>Mini Survey Monkey</h1>
-<p class="muted">Create new surveys or revisit your existing ones.</p>
-
-<section class="card create-section">
-    <h2>Create a new survey</h2>
-    <p class="muted">Start a new survey and add your own questions.</p>
-    <a class="button primary" th:href="@{/surveys/new}">+ Create Survey</a>
-</section>
-
-<section class="card existing-section">
-    <div class="existing-header">
-        <h2>Existing Surveys</h2>
-        <button id="refreshBtn" class="button secondary" type="button">Refresh</button>
+<!-- New header bar instead of topnav -->
+<header class="app-header">
+    <div class="app-header-left">
+        <a th:href="@{/}" class="app-logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">Mini Survey Monkey</span>
+        </a>
+        <nav class="app-nav">
+            <a th:href="@{/}" class="nav-link active">Home</a>
+            <a th:href="@{/surveys/new}" class="nav-link">Create</a>
+        </nav>
     </div>
 
-    <ul id="surveysUl">
-        <li class="no-surveys muted">No surveys yet.</li>
-    </ul>
-</section>
+    <div class="app-header-right">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode">
+            🌙
+        </button>
+
+        <div class="user-menu">
+            <button class="avatar-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                <span class="avatar-circle">M</span>
+            </button>
+            <div class="user-menu-dropdown">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="dropdown-item">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="app-main">
+    <h1>Mini Survey Monkey</h1>
+    <p class="muted">Create new surveys or revisit your existing ones.</p>
+
+    <section class="card create-section">
+        <h2>Create a new survey</h2>
+        <p class="muted">Start a new survey and add your own questions.</p>
+        <a class="button primary" th:href="@{/surveys/new}">+ Create Survey</a>
+    </section>
+
+    <section class="card existing-section">
+        <div class="existing-header">
+            <h2>Existing Surveys</h2>
+            <button id="refreshBtn" class="button secondary" type="button">Refresh</button>
+        </div>
+
+        <!-- Inline status/info message -->
+        <div id="surveysMessage" class="inline-message"></div>
+
+        <ul id="surveysUl">
+            <li class="no-surveys muted">No surveys yet.</li>
+        </ul>
+    </section>
+</main>
+
+<!-- App-wide confirm modal -->
+<div id="app-modal-backdrop" class="modal-backdrop">
+    <div class="modal">
+        <h2 id="app-modal-title" class="modal-title">Confirm action</h2>
+        <p id="app-modal-body" class="modal-body"></p>
+        <div class="modal-actions">
+            <button id="app-modal-cancel" class="button secondary" type="button">Cancel</button>
+            <button id="app-modal-confirm" class="button primary" type="button">Confirm</button>
+        </div>
+    </div>
+</div>
 
 <script>
+    // Theme toggle + avatar dropdown
+    document.addEventListener('DOMContentLoaded', () => {
+        const root = document.documentElement;
+        const themeBtn = document.getElementById('themeToggle');
+
+        const applyIcon = () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
+        };
+        applyIcon();
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const isDark = root.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    root.removeAttribute('data-theme');
+                    localStorage.setItem('msm-theme', 'light');
+                } else {
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('msm-theme', 'dark');
+                }
+                applyIcon();
+            });
+        }
+
+        const userMenu = document.querySelector('.user-menu');
+        if (userMenu) {
+            const avatarBtn = userMenu.querySelector('.avatar-btn');
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', () => {
+                userMenu.classList.remove('open');
+            });
+        }
+    });
+
+    // Inline message helper
+    function showInlineMessage(message, type = 'success') {
+        const box = document.getElementById('surveysMessage');
+        if (!box) return;
+        box.textContent = message || '';
+        box.className = 'inline-message show ' + type;
+
+        clearTimeout(box._timeout);
+        box._timeout = setTimeout(() => {
+            box.className = 'inline-message';
+            box.textContent = '';
+        }, 3500);
+    }
+
+    // Custom confirm modal helper
+    function showConfirmModal({ title, body, confirmText = 'Confirm', destructive = false }) {
+        return new Promise((resolve) => {
+            const backdrop = document.getElementById('app-modal-backdrop');
+            const titleEl = document.getElementById('app-modal-title');
+            const bodyEl = document.getElementById('app-modal-body');
+            const confirmBtn = document.getElementById('app-modal-confirm');
+            const cancelBtn = document.getElementById('app-modal-cancel');
+
+            titleEl.textContent = title || 'Are you sure?';
+            bodyEl.textContent = body || '';
+            confirmBtn.textContent = confirmText;
+            confirmBtn.classList.toggle('destructive', !!destructive);
+
+            backdrop.classList.add('show');
+
+            const close = (result) => {
+                backdrop.classList.remove('show');
+                confirmBtn.removeEventListener('click', onConfirm);
+                cancelBtn.removeEventListener('click', onCancel);
+                backdrop.removeEventListener('click', onBackdrop);
+                resolve(result);
+            };
+
+            const onConfirm = (e) => {
+                e.stopPropagation();
+                close(true);
+            };
+            const onCancel = (e) => {
+                e.stopPropagation();
+                close(false);
+            };
+            const onBackdrop = (e) => {
+                if (e.target === backdrop) {
+                    close(false);
+                }
+            };
+
+            confirmBtn.addEventListener('click', onConfirm);
+            cancelBtn.addEventListener('click', onCancel);
+            backdrop.addEventListener('click', onBackdrop);
+        });
+    }
+
     async function loadSurveys() {
         const ul = document.getElementById('surveysUl');
         ul.innerHTML = '<li class="muted">Loading…</li>';
@@ -79,51 +228,71 @@
                 take.className = 'action-link primary';
                 actions.appendChild(take);
 
-                // Results (NEW)
+                // Results (keep existing feature)
                 const results = document.createElement('a');
                 results.href = `/surveys/${s.id}/results`;
                 results.textContent = 'Results';
                 results.className = 'action-link';
                 actions.appendChild(results);
 
-                // Close/Reopen
+                // Close/Reopen (no browser confirm)
                 const toggle = document.createElement('a');
                 toggle.textContent = s.closed ? 'Reopen' : 'Close';
                 toggle.className = 'action-link';
                 toggle.href = '#';
                 toggle.onclick = async (e) => {
                     e.preventDefault();
-                    const action = s.closed ? 'reopen' : 'close';
-                    if (!confirm(`Are you sure you want to ${action} survey #${s.id}?`)) return;
+                    const closing = !s.closed;
+
+                    const ok = await showConfirmModal({
+                        title: closing ? 'Close survey?' : 'Reopen survey?',
+                        body: closing
+                            ? `Participants will no longer be able to respond to “${s.title || '(untitled survey)'}”.`
+                            : `Participants will now be able to respond to “${s.title || '(untitled survey)'}”.`,
+                        confirmText: closing ? 'Close survey' : 'Reopen survey',
+                        destructive: closing
+                    });
+
+                    if (!ok) return;
 
                     const r = await fetch(`/surveys/${s.id}/close`, { method: 'POST' });
                     if (r.ok) {
+                        showInlineMessage(closing ? 'Survey closed.' : 'Survey reopened.', 'success');
                         loadSurveys();
                     } else {
-                        alert('Failed to update survey status');
+                        showInlineMessage('Failed to update survey status.', 'error');
                     }
                 };
                 actions.appendChild(toggle);
 
-                // Delete
+                // Delete (no browser confirm)
                 const del = document.createElement('a');
                 del.textContent = 'Delete';
                 del.className = 'action-link';
                 del.href = '#';
                 del.onclick = async (e) => {
                     e.preventDefault();
-                    if (!confirm(`Delete survey #${s.id}?`)) return;
+
+                    const ok = await showConfirmModal({
+                        title: 'Delete survey?',
+                        body: `Permanently delete “${s.title || '(untitled survey)'}” (#${s.id})? This cannot be undone.`,
+                        confirmText: 'Delete survey',
+                        destructive: true
+                    });
+
+                    if (!ok) return;
 
                     const r = await fetch(`/surveys/${s.id}`, { method: 'DELETE' });
                     if (r.ok) {
+                        showInlineMessage('Survey deleted.', 'success');
                         loadSurveys();
                     } else {
-                        alert('Failed to delete survey');
+                        showInlineMessage('Failed to delete survey.', 'error');
                     }
                 };
                 actions.appendChild(del);
 
-                // Share
+                // Share (no alert/prompt)
                 const share = document.createElement('a');
                 share.textContent = 'Share';
                 share.className = 'action-link';
@@ -133,20 +302,21 @@
                     try {
                         const r = await fetch(`/surveys/${s.id}/share`);
                         if (!r.ok) {
-                            alert('Failed to fetch share link');
+                            showInlineMessage('Failed to fetch share link.', 'error');
                             return;
                         }
                         const link = await r.text();
 
                         if (navigator.clipboard && navigator.clipboard.writeText) {
                             await navigator.clipboard.writeText(link);
-                            alert('Share link copied to clipboard:\n' + link);
+                            showInlineMessage('Share link copied to clipboard.', 'success');
                         } else {
-                            // Fallback if clipboard API not available
-                            prompt('Copy this link:', link);
+                            // Fallback: still keep it in-app
+                            showInlineMessage('Share link: ' + link, 'success');
                         }
                     } catch (err) {
-                        alert('Error while generating share link');
+                        console.error(err);
+                        showInlineMessage('Error while generating share link.', 'error');
                     }
                 };
                 actions.appendChild(share);
@@ -158,6 +328,7 @@
 
         } catch (e) {
             ul.innerHTML = `<li class="error">${e.message}</li>`;
+            showInlineMessage('Error loading surveys. Please try again.', 'error');
         }
     }
 

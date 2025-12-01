@@ -12,6 +12,12 @@
     const qType = el('qType');
     const status = el('status');
 
+    function setStatus(message, type = 'muted') {
+        if (!status) return;
+        status.textContent = message || '';
+        status.className = type;
+    }
+
     function renderQuestions() {
         questionsList.innerHTML = '';
         if (questions.length === 0) {
@@ -21,6 +27,7 @@
             questionsList.appendChild(p);
             return;
         }
+
         questions.forEach((q, idx) => {
             const div = document.createElement('div');
             div.className = 'question';
@@ -37,7 +44,11 @@
                 if (q.minValue !== null && q.minValue !== undefined) r.push('min=' + q.minValue);
                 if (q.maxValue !== null && q.maxValue !== undefined) r.push('max=' + q.maxValue);
                 if (r.length) extra = ' · ' + r.join(', ');
-            } else if (q.type === 'CHOICE' && q.options && q.options.length) {
+            } else if (
+                (q.type === 'CHOICE_SINGLE' || q.type === 'CHOICE_MULTI') &&
+                q.options &&
+                q.options.length
+            ) {
                 extra = ' · Options: ' + q.options.join(', ');
             }
 
@@ -74,8 +85,10 @@
         const text = el('qText').value.trim();
         const type = qType.value;
 
+        setStatus('', 'muted');
+
         if (!text) {
-            alert('Please enter the question text.');
+            setStatus('Please enter the question text.', 'error');
             return;
         }
 
@@ -86,6 +99,12 @@
                 .split('\n')
                 .map((s) => s.trim())
                 .filter(Boolean);
+
+            if (lines.length === 0) {
+                setStatus('Please provide at least one choice option.', 'error');
+                return;
+            }
+
             q.options = lines;
         }
 
@@ -94,7 +113,7 @@
             const maxV = toIntOrNull(maxInput.value);
 
             if (minV !== null && maxV !== null && minV > maxV) {
-                alert('Min must be ≤ Max.');
+                setStatus('Min must be ≤ Max.', 'error');
                 return;
             }
             if (minV !== null) q.minValue = minV;
@@ -108,23 +127,21 @@
         choiceArea.value = '';
         minInput.value = '';
         maxInput.value = '';
+        setStatus('', 'muted');
         renderQuestions();
     });
 
     async function saveSurvey() {
-        status.textContent = '';
-        status.className = 'muted';
+        setStatus('', 'muted');
 
         const title = el('surveyTitle').value.trim();
         if (!title) {
-            status.textContent = 'Please enter a title.';
-            status.className = 'error';
+            setStatus('Please enter a title.', 'error');
             return;
         }
 
         if (questions.length === 0) {
-            status.textContent = 'Please add at least one question.';
-            status.className = 'error';
+            setStatus('Please add at least one question.', 'error');
             return;
         }
 
@@ -151,9 +168,10 @@
                 saved.Id;
             const savedTitle = saved.title ?? saved.name ?? title ?? '(untitled)';
 
-            status.textContent =
-                'Saved survey #' + (savedId ?? 'unknown') + ' (' + savedTitle + ').';
-            status.className = 'success';
+            setStatus(
+                'Saved survey #' + (savedId ?? 'unknown') + ' (' + savedTitle + ').',
+                'success'
+            );
 
             // Clear all fields + question list
             el('surveyTitle').value = '';
@@ -163,8 +181,7 @@
             minInput.value = '';
             maxInput.value = '';
         } catch (e) {
-            status.textContent = e.message;
-            status.className = 'error';
+            setStatus(e.message, 'error');
         }
     }
 

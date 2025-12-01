@@ -15,6 +15,18 @@
     --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
+/* 🌙 Dark mode overrides */
+:root[data-theme="dark"] {
+    --primary-color: #3b82f6;
+    --primary-dark: #2563eb;
+    --secondary-color: #9ca3af;
+    --background-light: #020617;
+    --text-dark: #e5e7eb;
+    --text-muted: #9ca3af;
+    --border-light: #1f2933;
+    --card-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
     font-size: 0.95rem;
@@ -25,6 +37,8 @@ body {
     background-color: var(--background-light);
     color: var(--text-dark);
 }
+
+/* ---------- Global Typography ---------- */
 
 h1 {
     margin: 1rem 0 0.5rem 0;
@@ -43,6 +57,10 @@ p.muted {
     color: var(--text-muted);
 }
 
+.muted {
+    color: var(--text-muted);
+}
+
 a {
     color: var(--primary-color);
     text-decoration: none;
@@ -53,6 +71,8 @@ a:hover {
     color: var(--primary-dark);
     text-decoration: underline;
 }
+
+/* ---------- Buttons ---------- */
 
 .button,
 .sign-out {
@@ -65,6 +85,7 @@ a:hover {
     text-align: center;
     border: 1px solid transparent;
     transition: all 0.2s ease-in-out;
+    background: none;
 }
 
 .button.primary {
@@ -89,7 +110,261 @@ a:hover {
     text-decoration: none;
 }
 
-/* Top nav */
+/* For small icon-style buttons (theme toggle) */
+.icon-btn {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.35rem 0.5rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+}
+
+.icon-btn:hover {
+    background-color: rgba(148, 163, 184, 0.2);
+    border-color: rgba(148, 163, 184, 0.6);
+}
+
+.icon-btn:active {
+    transform: scale(0.95);
+}
+
+/* ---------- App Header / Layout ---------- */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 1.5rem;
+}
+
+.app-main {
+    margin-top: 0.5rem;
+}
+
+/* Logo */
+
+.app-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.app-logo:hover {
+    text-decoration: none;
+    color: var(--text-dark);
+}
+
+.logo-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+.logo-text {
+    letter-spacing: 0.02em;
+}
+
+/* Nav */
+
+.app-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.app-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.nav-link {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(148, 163, 184, 0.15);
+    color: var(--text-dark);
+    text-decoration: none;
+}
+
+.nav-link.active {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: var(--primary-color);
+}
+
+/* Right side (theme + user) */
+
+.app-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* User menu / avatar */
+
+.user-menu {
+    position: relative;
+}
+
+.avatar-btn {
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
+.avatar-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Dropdown */
+
+.user-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 120%;
+    min-width: 140px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--card-shadow);
+    padding: 0.35rem 0.25rem;
+    display: none;
+    z-index: 10;
+}
+
+.user-menu.open .user-menu-dropdown {
+    display: block;
+}
+
+.dropdown-item {
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border-radius: 6px;
+    color: var(--text-dark);
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+}
+
+/* ---------- Inline messages ---------- */
+
+.inline-message {
+    margin: 0.75rem 0 0.25rem 0;
+    padding: 0.45rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.inline-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.inline-message.success {
+    border-color: rgba(34, 197, 94, 0.5);
+    background-color: rgba(22, 163, 74, 0.08);
+    color: #166534;
+}
+
+.inline-message.error {
+    border-color: rgba(220, 53, 69, 0.6);
+    background-color: rgba(220, 53, 69, 0.08);
+    color: #b91c1c;
+}
+
+/* ---------- Modal (confirm) ---------- */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modal-backdrop.show {
+    display: flex;
+}
+
+.modal {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem 1.4rem 1.2rem;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.3);
+    border: 1px solid var(--border-light);
+}
+
+.modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.modal-body {
+    font-size: 0.94rem;
+    color: var(--text-muted);
+    margin-bottom: 1.1rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.modal-actions .button.primary.destructive {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.modal-actions .button.primary.destructive:hover {
+    background-color: #b52a37;
+}
+
+/* ---------- Old topnav (still here if needed) ---------- */
 
 .topnav {
     display: flex;
@@ -125,7 +400,7 @@ a:hover {
     text-decoration: none;
 }
 
-/* Cards */
+/* ---------- Cards ---------- */
 
 .card {
     background: #ffffff;
@@ -221,12 +496,15 @@ a:hover {
     background: #ffc9c9;
 }
 
-.muted {
-    color: var(--text-muted);
-}
+/* ---------- Status text ---------- */
 
 .error {
     color: #dc3545;
+    font-weight: 500;
+}
+
+.success {
+    color: #198754;
     font-weight: 500;
 }
 
@@ -235,7 +513,7 @@ a:hover {
     font-style: italic;
 }
 
-/* Create / take survey form + questions */
+/* ---------- Create / take survey form + questions ---------- */
 
 #survey-form {
     display: flex;
@@ -283,7 +561,8 @@ a:hover {
     padding: 0.25rem 0;
 }
 
-.question label.option input[type="checkbox"] {
+.question label.option input[type="checkbox"],
+.question label.option input[type="radio"] {
     width: 16px;
     height: 16px;
     margin-right: 0.5rem;
@@ -314,7 +593,7 @@ button[type="submit"]:hover {
     background-color: var(--primary-dark);
 }
 
-/* Create survey layout */
+/* ---------- Create survey layout ---------- */
 
 .existing-header {
     display: flex;
@@ -430,6 +709,8 @@ button[type="submit"]:hover {
     padding-top: 1.25rem;
     margin-top: 1.25rem;
 }
+
+/* Results area scroll */
 
 #results-root {
     margin-top: 0.5rem;

@@ -1,8 +1,6 @@
-
 document.addEventListener("DOMContentLoaded", () => {
     loadSurveyPreview();
 });
-
 
 async function loadSurveyPreview() {
     const root = document.getElementById("survey-root");
@@ -30,7 +28,7 @@ function renderSurveyPreview(survey) {
     if (survey.closed) {
         const closedNote = document.createElement("p");
         closedNote.textContent = "Note: This survey is currently closed.";
-        closedNote.style.color = "#777";
+        closedNote.className = "muted";
         closedNote.style.marginBottom = "0.75rem";
         root.appendChild(closedNote);
     }
@@ -38,7 +36,7 @@ function renderSurveyPreview(survey) {
     const form = document.createElement("form");
     form.id = "survey-form";
 
-    survey.questions.forEach((q) => {
+    (survey.questions || []).forEach((q) => {
         const wrapper = document.createElement("div");
         wrapper.classList.add("question");
 
@@ -54,15 +52,21 @@ function renderSurveyPreview(survey) {
                 break;
 
             case "NUMBER":
-                wrapper.appendChild(createPreviewNumberInput(name, q.minValue, q.maxValue));
+                wrapper.appendChild(
+                    createPreviewNumberInput(name, q.minValue, q.maxValue)
+                );
                 break;
 
             case "CHOICE_SINGLE":
-                wrapper.appendChild(createPreviewRadioInputs(name, q.options));
+                wrapper.appendChild(
+                    createPreviewRadioInputs(name, q.options || [])
+                );
                 break;
 
             case "CHOICE_MULTI":
-                wrapper.appendChild(createPreviewCheckboxInputs(name, q.options));
+                wrapper.appendChild(
+                    createPreviewCheckboxInputs(name, q.options || [])
+                );
                 break;
 
             default:
@@ -112,8 +116,9 @@ function createPreviewNumberInput(name, min, max) {
 function createPreviewRadioInputs(name, options) {
     const container = document.createElement("div");
 
-    options.forEach(opt => {
+    options.forEach((opt) => {
         const label = document.createElement("label");
+        label.classList.add("option");
 
         const radio = document.createElement("input");
         radio.type = "radio";
@@ -124,7 +129,6 @@ function createPreviewRadioInputs(name, options) {
         label.appendChild(document.createTextNode(" " + opt));
 
         container.appendChild(label);
-        container.appendChild(document.createElement("br"));
     });
 
     return container;
@@ -133,8 +137,9 @@ function createPreviewRadioInputs(name, options) {
 function createPreviewCheckboxInputs(name, options) {
     const container = document.createElement("div");
 
-    options.forEach(opt => {
+    options.forEach((opt) => {
         const label = document.createElement("label");
+        label.classList.add("option");
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
@@ -145,7 +150,6 @@ function createPreviewCheckboxInputs(name, options) {
         label.appendChild(document.createTextNode(" " + opt));
 
         container.appendChild(label);
-        container.appendChild(document.createElement("br"));
     });
 
     return container;

@@ -4,6 +4,19 @@ if (!window.__resultsPageInitialized) {
 }
 
 /**
+ * Small helper to read the CSS primary color so charts match the theme.
+ */
+function getPrimaryColor() {
+    try {
+        const style = getComputedStyle(document.documentElement);
+        const val = style.getPropertyValue('--primary-color').trim();
+        return val || '#0d6efd';
+    } catch {
+        return '#0d6efd';
+    }
+}
+
+/**
  * Load results JSON for the current survey and render charts.
  */
 async function loadResults() {
@@ -20,7 +33,7 @@ async function loadResults() {
 
         // Set survey title if backend sends it
         const titleEl = document.getElementById("survey-title");
-        if (data.title) {
+        if (data.title && titleEl) {
             titleEl.textContent = `Results: ${data.title}`;
         }
 
@@ -43,15 +56,17 @@ async function loadResults() {
             block.appendChild(heading);
 
             const canvas = document.createElement("canvas");
-            canvas.style.height = "350px";  // smaller, fixed
+            canvas.style.height = "350px";
             canvas.style.maxHeight = "350px";
             block.appendChild(canvas);
 
             root.appendChild(block);
 
-            if (q.type === "NUMBER") {
+            const type = (q.type || "").toUpperCase();
+
+            if (type === "NUMBER") {
                 renderNumberHistogram(canvas, q);
-            } else if (q.type.toUpperCase().startsWith("CHOICE")) {
+            } else if (type.startsWith("CHOICE")) {
                 renderChoicePie(canvas, q);
             } else {
                 const msg = document.createElement("small");
@@ -75,6 +90,10 @@ function renderNumberHistogram(canvas, question) {
     const labels = bins.map(b => b.label);
     const counts = bins.map(b => b.count);
 
+    const primary = getPrimaryColor();
+    const primaryTranslucent =
+        primary.length === 7 ? primary + "80" : primary; // add alpha if #RRGGBB
+
     const ctx = canvas.getContext("2d");
     new Chart(ctx, {
         type: "bar",
@@ -84,8 +103,8 @@ function renderNumberHistogram(canvas, question) {
                 {
                     label: "Responses",
                     data: counts,
-                    backgroundColor: "rgba(13, 110, 253, 0.5)",
-                    borderColor: "rgba(13, 110, 253, 1)",
+                    backgroundColor: primaryTranslucent,
+                    borderColor: primary,
                     borderWidth: 1
                 }
             ]
@@ -128,6 +147,16 @@ function renderChoicePie(canvas, question) {
     const countsObj = question.counts || {};
     const labels = Object.keys(countsObj);
     const data = Object.values(countsObj);
+
+    if (labels.length === 0) {
+        const ctx = canvas.getContext("2d");
+        ctx.font = "14px system-ui, sans-serif";
+        ctx.fillStyle = "#999";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("No responses yet for this question.", canvas.width / 2, canvas.height / 2);
+        return;
+    }
 
     const colors = [
         "#0d6efd", "#6c757d", "#198754",

@@ -2,23 +2,111 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Survey Preview</title>
 
-    <link rel="stylesheet" href="/css/surveys-preview.css">
+    <link rel="stylesheet" th:href="@{/css/survey.css}">
+    <link rel="stylesheet" th:href="@{/css/surveys-preview.css}">
+
+    <!-- Initialize theme BEFORE paint -->
+    <script>
+        (function () {
+            const stored = localStorage.getItem('msm-theme');
+            if (stored === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
 </head>
 <body>
-<a href="/">← Home</a>
 
-<h1>Survey Preview</h1>
-<p class="subtitle">This is a read-only preview of the survey as respondents will see it.</p>
+<!-- HEADER -->
+<header class="app-header">
+    <div class="app-header-left">
+        <a th:href="@{/}" class="app-logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">Mini Survey Monkey</span>
+        </a>
 
-<div id="survey-root">
-    Loading survey...
-</div>
+        <nav class="app-nav">
+            <a th:href="@{/}" class="nav-link">Home</a>
+            <a th:href="@{/surveys/new}" class="nav-link">Create</a>
+        </nav>
+    </div>
 
+    <div class="app-header-right">
+        <button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">
+            🌙
+        </button>
+
+        <div class="user-menu">
+            <button class="avatar-btn">
+                <span class="avatar-circle">M</span>
+            </button>
+
+            <div class="user-menu-dropdown">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="dropdown-item">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- MAIN CONTENT -->
+<main class="app-main">
+    <div class="card">
+        <h1>Survey Preview</h1>
+        <p class="muted subtitle">This is a read-only preview of the survey as respondents will see it.</p>
+
+        <div id="survey-root">
+            Loading survey...
+        </div>
+    </div>
+</main>
+
+<!-- THEME + AVATAR SCRIPT -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const root = document.documentElement;
+        const btn = document.getElementById('themeToggle');
+
+        const setIcon = () => {
+            btn.textContent = root.getAttribute('data-theme') === 'dark' ? "☀️" : "🌙";
+        };
+        setIcon();
+
+        btn.addEventListener('click', () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                root.removeAttribute('data-theme');
+                localStorage.setItem('msm-theme', 'light');
+            } else {
+                root.setAttribute('data-theme', 'dark');
+                localStorage.setItem('msm-theme', 'dark');
+            }
+            setIcon();
+        });
+
+        const menu = document.querySelector('.user-menu');
+        const avatar = menu.querySelector('.avatar-btn');
+
+        avatar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('open');
+        });
+
+        document.addEventListener('click', () => {
+            menu.classList.remove('open');
+        });
+    });
+</script>
+
+<!-- EXISTING JS -->
 <script th:inline="javascript">
     const surveyId = /*[[${surveyId}]]*/ 0;
 </script>
-<script src="/js/surveys-preview.js"></script>
+<script th:src="@{/js/surveys-preview.js}"></script>
+
 </body>
 </html>
