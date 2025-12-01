@@ -58,7 +58,27 @@ public class WebSecurityConfig {
                         .password("password")
                         .roles("USER")
                         .build();
+        UserDetails alice =
+                User.withDefaultPasswordEncoder()
+                        .username("alice")
+                        .password("password1")
+                        .roles("USER")
+                        .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails bob =
+                User.withDefaultPasswordEncoder()
+                        .username("bob")
+                        .password("password2")
+                        .roles("USER")
+                        .build();
+
+        UserDetails charlie =
+                User.withDefaultPasswordEncoder()
+                        .username("charlie")
+                        .password("password3")
+                        .roles("USER")
+                        .build();
+
+        return new InMemoryUserDetailsManager(user, alice, bob, charlie);
     }
 }

@@ -60,16 +60,27 @@
         <a class="button primary" th:href="@{/surveys/new}">+ Create Survey</a>
     </section>
 
-    <section class="card existing-section">
-        <div class="existing-header">
-            <h2>Existing Surveys</h2>
-            <button id="refreshBtn" class="button secondary" type="button">Refresh</button>
-        </div>
+<section class="card existing-section">
+    <div class="existing-header">
+        <h2>Your Surveys</h2>
+        <button id="refreshMyBtn" class="button secondary" type="button">Refresh</button>
+    </div>
+
+    <ul id="mySurveysUl">
+        <li class="no-surveys muted">No surveys yet.</li>
+    </ul>
+</section>
+
+<section class="card existing-section">
+    <div class="existing-header">
+        <h2>All Surveys</h2>
+        <button id="refreshAllBtn" class="button secondary" type="button">Refresh</button>
+    </div>
 
         <!-- Inline status/info message -->
         <div id="surveysMessage" class="inline-message"></div>
 
-        <ul id="surveysUl">
+        <ul id="allSurveysUl">
             <li class="no-surveys muted">No surveys yet.</li>
         </ul>
     </section>
@@ -87,254 +98,8 @@
     </div>
 </div>
 
-<script>
-    // Theme toggle + avatar dropdown
-    document.addEventListener('DOMContentLoaded', () => {
-        const root = document.documentElement;
-        const themeBtn = document.getElementById('themeToggle');
 
-        const applyIcon = () => {
-            const isDark = root.getAttribute('data-theme') === 'dark';
-            if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
-        };
-        applyIcon();
-
-        if (themeBtn) {
-            themeBtn.addEventListener('click', () => {
-                const isDark = root.getAttribute('data-theme') === 'dark';
-                if (isDark) {
-                    root.removeAttribute('data-theme');
-                    localStorage.setItem('msm-theme', 'light');
-                } else {
-                    root.setAttribute('data-theme', 'dark');
-                    localStorage.setItem('msm-theme', 'dark');
-                }
-                applyIcon();
-            });
-        }
-
-        const userMenu = document.querySelector('.user-menu');
-        if (userMenu) {
-            const avatarBtn = userMenu.querySelector('.avatar-btn');
-            avatarBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                userMenu.classList.toggle('open');
-            });
-
-            document.addEventListener('click', () => {
-                userMenu.classList.remove('open');
-            });
-        }
-    });
-
-    // Inline message helper
-    function showInlineMessage(message, type = 'success') {
-        const box = document.getElementById('surveysMessage');
-        if (!box) return;
-        box.textContent = message || '';
-        box.className = 'inline-message show ' + type;
-
-        clearTimeout(box._timeout);
-        box._timeout = setTimeout(() => {
-            box.className = 'inline-message';
-            box.textContent = '';
-        }, 3500);
-    }
-
-    // Custom confirm modal helper
-    function showConfirmModal({ title, body, confirmText = 'Confirm', destructive = false }) {
-        return new Promise((resolve) => {
-            const backdrop = document.getElementById('app-modal-backdrop');
-            const titleEl = document.getElementById('app-modal-title');
-            const bodyEl = document.getElementById('app-modal-body');
-            const confirmBtn = document.getElementById('app-modal-confirm');
-            const cancelBtn = document.getElementById('app-modal-cancel');
-
-            titleEl.textContent = title || 'Are you sure?';
-            bodyEl.textContent = body || '';
-            confirmBtn.textContent = confirmText;
-            confirmBtn.classList.toggle('destructive', !!destructive);
-
-            backdrop.classList.add('show');
-
-            const close = (result) => {
-                backdrop.classList.remove('show');
-                confirmBtn.removeEventListener('click', onConfirm);
-                cancelBtn.removeEventListener('click', onCancel);
-                backdrop.removeEventListener('click', onBackdrop);
-                resolve(result);
-            };
-
-            const onConfirm = (e) => {
-                e.stopPropagation();
-                close(true);
-            };
-            const onCancel = (e) => {
-                e.stopPropagation();
-                close(false);
-            };
-            const onBackdrop = (e) => {
-                if (e.target === backdrop) {
-                    close(false);
-                }
-            };
-
-            confirmBtn.addEventListener('click', onConfirm);
-            cancelBtn.addEventListener('click', onCancel);
-            backdrop.addEventListener('click', onBackdrop);
-        });
-    }
-
-    async function loadSurveys() {
-        const ul = document.getElementById('surveysUl');
-        ul.innerHTML = '<li class="muted">Loading…</li>';
-
-        try {
-            const resp = await fetch('/surveys');
-            if (!resp.ok) {
-                throw new Error('Failed to load surveys');
-            }
-
-            const data = await resp.json();
-            ul.innerHTML = '';
-
-            if (!Array.isArray(data) || data.length === 0) {
-                ul.innerHTML = '<li class="no-surveys muted">No surveys yet.</li>';
-                return;
-            }
-
-            data.forEach(s => {
-                const li = document.createElement('li');
-                li.className = 'survey-item';
-
-                const title = document.createElement('div');
-                title.className = 'survey-title';
-                title.textContent = `#${s.id} — ${s.title || '(untitled survey)'}`;
-
-                const actions = document.createElement('div');
-                actions.className = 'survey-actions';
-
-                // Preview
-                const preview = document.createElement('a');
-                preview.href = `/surveys/${s.id}/preview`;
-                preview.textContent = 'Preview';
-                preview.className = 'action-link';
-                actions.appendChild(preview);
-
-                // Take
-                const take = document.createElement('a');
-                take.href = `/surveys/${s.id}/response`;
-                take.textContent = 'Take';
-                take.className = 'action-link primary';
-                actions.appendChild(take);
-
-                // Results (keep existing feature)
-                const results = document.createElement('a');
-                results.href = `/surveys/${s.id}/results`;
-                results.textContent = 'Results';
-                results.className = 'action-link';
-                actions.appendChild(results);
-
-                // Close/Reopen (no browser confirm)
-                const toggle = document.createElement('a');
-                toggle.textContent = s.closed ? 'Reopen' : 'Close';
-                toggle.className = 'action-link';
-                toggle.href = '#';
-                toggle.onclick = async (e) => {
-                    e.preventDefault();
-                    const closing = !s.closed;
-
-                    const ok = await showConfirmModal({
-                        title: closing ? 'Close survey?' : 'Reopen survey?',
-                        body: closing
-                            ? `Participants will no longer be able to respond to “${s.title || '(untitled survey)'}”.`
-                            : `Participants will now be able to respond to “${s.title || '(untitled survey)'}”.`,
-                        confirmText: closing ? 'Close survey' : 'Reopen survey',
-                        destructive: closing
-                    });
-
-                    if (!ok) return;
-
-                    const r = await fetch(`/surveys/${s.id}/close`, { method: 'POST' });
-                    if (r.ok) {
-                        showInlineMessage(closing ? 'Survey closed.' : 'Survey reopened.', 'success');
-                        loadSurveys();
-                    } else {
-                        showInlineMessage('Failed to update survey status.', 'error');
-                    }
-                };
-                actions.appendChild(toggle);
-
-                // Delete (no browser confirm)
-                const del = document.createElement('a');
-                del.textContent = 'Delete';
-                del.className = 'action-link';
-                del.href = '#';
-                del.onclick = async (e) => {
-                    e.preventDefault();
-
-                    const ok = await showConfirmModal({
-                        title: 'Delete survey?',
-                        body: `Permanently delete “${s.title || '(untitled survey)'}” (#${s.id})? This cannot be undone.`,
-                        confirmText: 'Delete survey',
-                        destructive: true
-                    });
-
-                    if (!ok) return;
-
-                    const r = await fetch(`/surveys/${s.id}`, { method: 'DELETE' });
-                    if (r.ok) {
-                        showInlineMessage('Survey deleted.', 'success');
-                        loadSurveys();
-                    } else {
-                        showInlineMessage('Failed to delete survey.', 'error');
-                    }
-                };
-                actions.appendChild(del);
-
-                // Share (no alert/prompt)
-                const share = document.createElement('a');
-                share.textContent = 'Share';
-                share.className = 'action-link';
-                share.href = '#';
-                share.onclick = async (e) => {
-                    e.preventDefault();
-                    try {
-                        const r = await fetch(`/surveys/${s.id}/share`);
-                        if (!r.ok) {
-                            showInlineMessage('Failed to fetch share link.', 'error');
-                            return;
-                        }
-                        const link = await r.text();
-
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            await navigator.clipboard.writeText(link);
-                            showInlineMessage('Share link copied to clipboard.', 'success');
-                        } else {
-                            // Fallback: still keep it in-app
-                            showInlineMessage('Share link: ' + link, 'success');
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        showInlineMessage('Error while generating share link.', 'error');
-                    }
-                };
-                actions.appendChild(share);
-
-                li.appendChild(title);
-                li.appendChild(actions);
-                ul.appendChild(li);
-            });
-
-        } catch (e) {
-            ul.innerHTML = `<li class="error">${e.message}</li>`;
-            showInlineMessage('Error loading surveys. Please try again.', 'error');
-        }
-    }
-
-    document.getElementById('refreshBtn').addEventListener('click', loadSurveys);
-    loadSurveys();
-</script>
-
+<script th:src="@{/js/ui-common.js}"></script>
+<script th:src="@{/js/index.js}"></script>
 </body>
 </html>

@@ -24,13 +24,24 @@ public class SurveyController {
     private UserRepository userRepository;
 
     @PostMapping("/surveys")
-    public Survey createSurvey(@RequestBody Survey survey) { 
-        User temp = userRepository.findByUsername("temp")
-        .orElseGet(() -> userRepository.save(new User("temp")));
+    public Survey createSurvey(@RequestBody Survey survey, HttpServletRequest request) {
+        // Get the username for current user
+        String username = (request.getUserPrincipal() != null)
+                ? request.getUserPrincipal().getName()
+                : null;
 
-        survey.setCreator(temp);
+        // Use temp user if no one is logged in
+        User creator;
+        if (username != null) {
+            creator = userRepository.findByUsername(username)
+                    .orElseGet(() -> userRepository.save(new User(username)));
+        } else {
+            creator = userRepository.findByUsername("temp")
+                    .orElseGet(() -> userRepository.save(new User("temp")));
+        }
 
-        return surveyRepository.save(survey); 
+        survey.setCreator(creator);
+        return surveyRepository.save(survey);
     }
 
     @PostMapping("/surveys/{surveyId}/questions")
@@ -59,6 +70,25 @@ public class SurveyController {
 
     @GetMapping("/surveys")
     public List<Survey> getAllSurveys() { return (List<Survey>) surveyRepository.findAll(); }
+
+    @GetMapping("/surveys/mine")
+    public List<Survey> getMySurveys(HttpServletRequest request) {
+        // Not logged in
+        if (request.getUserPrincipal() == null) {
+            return Collections.emptyList();
+        }
+
+        String username = request.getUserPrincipal().getName();
+
+        Optional<User> optUser = userRepository.findByUsername(username);
+
+        if (optUser.isEmpty()) {
+            return Collections.emptyList();
+        }
+        User user = optUser.get();
+
+        return surveyRepository.findByCreatorId(user.getId());
+    }
 
     @PostMapping("/surveys/{id}/close")
     public Survey closeOrOpenSurvey(@PathVariable Long id) {

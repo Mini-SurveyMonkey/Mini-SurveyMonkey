@@ -284,4 +284,89 @@ class SurveyControllerTest {
         verify(surveyRepository).deleteById(id);
     }
 
+    @Test
+    @WithMockUser(username = "alice", roles = "USER")
+    void testCreateSurvey_UsesLoggedInUser() throws Exception {
+        User alice = new User( );
+        alice.setId(1L);
+        alice.setUsername("alice");
+
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(alice));
+
+        Survey saved = new Survey();
+        saved.setId(10L);
+        saved.setTitle("New Survey");
+        saved.setCreator(alice);
+
+        when(surveyRepository.save(any())).thenReturn(saved);
+
+        mockMvc.perform(post("/surveys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"New Survey\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(10));
+
+        verify(userRepository).findByUsername("alice");
+        verify(surveyRepository).save(any(Survey.class));
+    }
+
+    @Test
+    @WithMockUser(username = "bob", roles = "USER")
+    void testCreateSurvey_CreatesNoUser() throws Exception {
+        when(userRepository.findByUsername("bob")).thenReturn(Optional.empty());
+
+        User newUser = new User();
+        newUser.setId(2L);
+        newUser.setUsername("bob");
+        when(userRepository.save(any())).thenReturn(newUser);
+
+        Survey saved = new Survey();
+        saved.setId(20L);
+        saved.setTitle("Survey by Bob");
+        saved.setCreator(newUser);
+        when(surveyRepository.save(any())).thenReturn(saved);
+
+        mockMvc.perform(post("/surveys")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Survey by Bob\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(20));
+
+        verify(userRepository).findByUsername("bob");
+        verify(userRepository).save(any(User.class));
+        verify(surveyRepository).save(any(Survey.class));
+    }
+
+    @Test
+    @WithMockUser(username = "alice", roles = "USER")
+    void testSurveys_ReturnsOnlyUsers() throws Exception {
+        User alice = new User();
+        alice.setId(1L);
+        alice.setUsername("alice");
+
+        when(userRepository.findByUsername("alice")).thenReturn(Optional.of(alice));
+
+        Survey s1 = new Survey(); s1.setId(5L);
+        Survey s2 = new Survey(); s2.setId(6L);
+        when(surveyRepository.findByCreatorId(1L)).thenReturn(List.of(s1, s2));
+
+        mockMvc.perform(get("/surveys/mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+
+        verify(surveyRepository).findByCreatorId(1L);
+    }
+
+    @Test
+    @WithMockUser(username = "carol", roles = "USER")
+    void testSurveys_EmptyIfUserMissing() throws Exception {
+        when(userRepository.findByUsername("carol")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/surveys/mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+        verify(userRepository).findByUsername("carol");
+        verify(surveyRepository, never()).findByCreatorId(anyLong());
+    }
 }
