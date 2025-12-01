@@ -1,36 +1,67 @@
+* {
+    box-sizing: border-box;
+}
+
+/* Layout */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    background-color: #f7f7f9;
+    color: #222;
+}
+
+/* Links */
+a {
+    color: #0d6efd;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Headings / text */
+h1 {
+    margin: 1rem 0 0.5rem 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+p {
+    margin: 0;
+}
+
+/* Container for survey */
 #survey-root {
     margin-top: 0.75rem;
 }
 
-/* Survey form layout */
+/* Form / questions */
 #survey-form {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-/* Question card */
 .question {
     background: #ffffff;
     border-radius: 8px;
     padding: 1rem;
-    border: 1px solid var(--border-light);
-    box-shadow: var(--card-shadow);
+    border: 1px solid #e2e2e2;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
-/* Dark mode tweak for question card */
-:root[data-theme="dark"] .question {
-    background: #020617;
-}
-
-/* Question text */
 .question p {
     margin: 0 0 0.75rem 0;
     font-weight: 600;
     font-size: 0.95rem;
 }
 
-/* Inputs (open text, number) */
+/* Inputs */
 .question textarea,
 .question input[type="number"] {
     width: 100%;
@@ -39,23 +70,14 @@
     border: 1px solid #ccc;
     font-family: inherit;
     font-size: 0.95rem;
-    color: var(--text-dark);
 }
 
-/* Dark mode input tweaks */
-:root[data-theme="dark"] .question textarea,
-:root[data-theme="dark"] .question input[type="number"] {
-    background-color: #020617;
-    border-color: #1f2933;
-}
-
-/* Textarea sizing */
 .question textarea {
     resize: vertical;
     min-height: 80px;
 }
 
-/* Choice options (radio/checkbox) */
+/* Choice options */
 .question label.option {
     display: flex;
     align-items: center;
@@ -65,20 +87,33 @@
     padding: 0.25rem 0;
 }
 
-.question label.option input[type="checkbox"],
-.question label.option input[type="radio"] {
+.question label.option input[type="checkbox"] {
     width: 16px;
     height: 16px;
     margin-right: 0.5rem;
 }
 
+/* Hint text */
 .question small {
     display: block;
     margin-top: 0.4rem;
-    color: var(--text-muted);
+    color: #777;
     font-size: 0.85rem;
 }
 
-#takeMessage.inline-message {
-    margin-bottom: 0.75rem;
+/* Submit button */
+button[type="submit"] {
+    margin-top: 0.5rem;
+    padding: 0.65rem 1.5rem;
+    background-color: #0d6efd;
+    border: none;
+    border-radius: 4px;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #0b5ed7;
 }
