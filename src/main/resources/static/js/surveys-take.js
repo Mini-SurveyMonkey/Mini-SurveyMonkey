@@ -7,33 +7,13 @@
  *  1. Fetch survey JSON using surveyId provided by Thymeleaf.
  *  2. Dynamically render all questions and input types.
  *  3. Collect answers into a JSON object.
- *  4. Send each answer to the backend.
+ *  4. Later i will implement so it sends JSON back to the backend
  */
 
 document.addEventListener("DOMContentLoaded", () => {
     loadSurvey();
 });
 
-/**
- * Show inline message instead of alert()
- */
-function showTakeMessage(message, type = "success") {
-    const box = document.getElementById("takeMessage");
-    if (!box) {
-        // Fallback if div is missing
-        console.log(message);
-        return;
-    }
-
-    box.textContent = message || "";
-    box.className = "inline-message show " + type;
-
-    clearTimeout(box._t);
-    box._t = setTimeout(() => {
-        box.className = "inline-message";
-        box.textContent = "";
-    }, 4000);
-}
 
 /**
  * Fetches a survey by ID from the backend and passes it to renderSurvey().
@@ -81,7 +61,7 @@ function renderSurvey(survey) {
     const form = document.createElement("form");
     form.id = "survey-form";
 
-    (survey.questions || []).forEach((q) => {
+    survey.questions.forEach((q) => {
         const wrapper = document.createElement("div");
         wrapper.classList.add("question");
 
@@ -90,29 +70,22 @@ function renderSurvey(survey) {
         wrapper.appendChild(label);
 
         const name = `q${q.id}`;
-        const type = (q.type || "").toUpperCase();
 
-        switch (type) {
+        switch (q.type) {
             case "OPEN_TEXT":
                 wrapper.appendChild(createTextInput(name));
                 break;
 
             case "NUMBER":
-                wrapper.appendChild(
-                    createNumberInput(name, q.minValue, q.maxValue)
-                );
+                wrapper.appendChild(createNumberInput(name, q.minValue, q.maxValue));
                 break;
 
             case "CHOICE_SINGLE":
-                wrapper.appendChild(
-                    createRadioInputs(name, q.options || [])
-                );
+                wrapper.appendChild(createRadioInputs(name, q.options));
                 break;
 
             case "CHOICE_MULTI":
-                wrapper.appendChild(
-                    createCheckboxInputs(name, q.options || [])
-                );
+                wrapper.appendChild(createCheckboxInputs(name, q.options));
                 break;
 
             default:
@@ -136,6 +109,7 @@ function renderSurvey(survey) {
 
     root.appendChild(form);
 }
+
 
 /**
  * Creates a textarea for open-ended questions.
@@ -162,8 +136,8 @@ function createNumberInput(name, min, max) {
     const input = document.createElement("input");
     input.type = "number";
     input.name = name;
-    if (min !== null && min !== undefined) input.min = min;
-    if (max !== null && max !== undefined) input.max = max;
+    if (min !== null) input.min = min;
+    if (max !== null) input.max = max;
     container.appendChild(input);
 
     if (min !== null || max !== null) {
@@ -179,7 +153,7 @@ function createNumberInput(name, min, max) {
 function createRadioInputs(name, options) {
     const container = document.createElement("div");
 
-    options.forEach((opt) => {
+    options.forEach(opt => {
         const label = document.createElement("label");
 
         const radio = document.createElement("input");
@@ -200,7 +174,7 @@ function createRadioInputs(name, options) {
 function createCheckboxInputs(name, options) {
     const container = document.createElement("div");
 
-    options.forEach((opt) => {
+    options.forEach(opt => {
         const label = document.createElement("label");
 
         const cb = document.createElement("input");
@@ -219,7 +193,7 @@ function createCheckboxInputs(name, options) {
 }
 
 /**
- * Handles form submission: collects user responses and sends them to backend.
+ * Handles form submission: collects user responses and logs them as JSON.
  * @param {HTMLFormElement} form - The form element being submitted.
  * @param {Object} survey - The full survey object (used to match IDs).
  */
@@ -228,12 +202,10 @@ function handleSubmit(form, survey) {
     const answersByQuestion = {};
 
     // Build answers map: questionId -> array of selected/entered values
-    (survey.questions || []).forEach((q) => {
+    survey.questions.forEach((q) => {
         const key = `q${q.id}`;
-        const type = (q.type || "").toUpperCase();
-
-        if (type.startsWith("CHOICE")) {
-            answersByQuestion[q.id] = formData.getAll(key); // array
+        if (q.type.toUpperCase().startsWith("CHOICE")) {
+            answersByQuestion[q.id] = formData.getAll(key);   // array
         } else {
             const value = formData.get(key);
             answersByQuestion[q.id] = value !== null ? [value] : [];
@@ -242,9 +214,10 @@ function handleSubmit(form, survey) {
 
     console.log("Survey responses:", answersByQuestion);
 
+    // Send each answer to the backend
     const requests = [];
 
-    (survey.questions || []).forEach((q) => {
+    survey.questions.forEach((q) => {
         const values = answersByQuestion[q.id] || [];
         values.forEach((val) => {
             if (val === null || val === "") return;
@@ -253,9 +226,9 @@ function handleSubmit(form, survey) {
                 fetch(`/surveys/${survey.id}/questions/${q.id}/answers`, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json",
+                        "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ answerText: String(val) }),
+                    body: JSON.stringify({ answerText: String(val) })
                 })
             );
         });
@@ -263,11 +236,10 @@ function handleSubmit(form, survey) {
 
     Promise.all(requests)
         .then(() => {
-            showTakeMessage("Survey submitted! Thank you for your response.", "success");
-            form.reset();
+            alert("Survey submitted!");
         })
         .catch((err) => {
             console.error("Error submitting answers:", err);
-            showTakeMessage("There was an error submitting your answers.", "error");
+            alert("There was an error submitting your answers.");
         });
 }
