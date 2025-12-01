@@ -80,8 +80,12 @@ function renderSurvey(survey) {
                 wrapper.appendChild(createNumberInput(name, q.minValue, q.maxValue));
                 break;
 
-            case "CHOICE":
-                wrapper.appendChild(createChoiceInputs(name, q.options));
+            case "CHOICE_SINGLE":
+                wrapper.appendChild(createRadioInputs(name, q.options));
+                break;
+
+            case "CHOICE_MULTI":
+                wrapper.appendChild(createCheckboxInputs(name, q.options));
                 break;
 
             default:
@@ -146,27 +150,45 @@ function createNumberInput(name, min, max) {
     return container;
 }
 
-/**
- * Creates checkbox options for multiple-choice questions.
- * @param {string} name - Input name attribute.
- * @param {Array<string>} options - Array of choice labels.
- * @returns {HTMLDivElement} Container element with labeled checkboxes.
- */
-function createChoiceInputs(name, options) {
+function createRadioInputs(name, options) {
     const container = document.createElement("div");
-    (options || []).forEach((opt) => {
+
+    options.forEach(opt => {
         const label = document.createElement("label");
-        label.classList.add("option");
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.name = name;
-        checkbox.value = opt;
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = name;
+        radio.value = opt;
 
-        label.appendChild(checkbox);
+        label.appendChild(radio);
         label.appendChild(document.createTextNode(" " + opt));
+
         container.appendChild(label);
+        container.appendChild(document.createElement("br"));
     });
+
+    return container;
+}
+
+function createCheckboxInputs(name, options) {
+    const container = document.createElement("div");
+
+    options.forEach(opt => {
+        const label = document.createElement("label");
+
+        const cb = document.createElement("input");
+        cb.type = "checkbox";
+        cb.name = name;
+        cb.value = opt;
+
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(" " + opt));
+
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+    });
+
     return container;
 }
 
@@ -182,7 +204,7 @@ function handleSubmit(form, survey) {
     // Build answers map: questionId -> array of selected/entered values
     survey.questions.forEach((q) => {
         const key = `q${q.id}`;
-        if (q.type === "CHOICE") {
+        if (q.type.toUpperCase().startsWith("CHOICE")) {
             answersByQuestion[q.id] = formData.getAll(key);   // array
         } else {
             const value = formData.get(key);

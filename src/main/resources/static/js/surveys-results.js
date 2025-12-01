@@ -51,7 +51,7 @@ async function loadResults() {
 
             if (q.type === "NUMBER") {
                 renderNumberHistogram(canvas, q);
-            } else if (q.type === "CHOICE") {
+            } else if (q.type.toUpperCase().startsWith("CHOICE")) {
                 renderChoicePie(canvas, q);
             } else {
                 const msg = document.createElement("small");

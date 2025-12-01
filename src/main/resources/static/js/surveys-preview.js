@@ -57,8 +57,12 @@ function renderSurveyPreview(survey) {
                 wrapper.appendChild(createPreviewNumberInput(name, q.minValue, q.maxValue));
                 break;
 
-            case "CHOICE":
-                wrapper.appendChild(createPreviewChoiceInputs(name, q.options));
+            case "CHOICE_SINGLE":
+                wrapper.appendChild(createPreviewRadioInputs(name, q.options));
+                break;
+
+            case "CHOICE_MULTI":
+                wrapper.appendChild(createPreviewCheckboxInputs(name, q.options));
                 break;
 
             default:
@@ -105,23 +109,43 @@ function createPreviewNumberInput(name, min, max) {
     return container;
 }
 
-
-function createPreviewChoiceInputs(name, options) {
+function createPreviewRadioInputs(name, options) {
     const container = document.createElement("div");
 
-    (options || []).forEach((opt) => {
+    options.forEach(opt => {
         const label = document.createElement("label");
-        label.classList.add("option");
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = name;
+        radio.disabled = true;
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(" " + opt));
+
+        container.appendChild(label);
+        container.appendChild(document.createElement("br"));
+    });
+
+    return container;
+}
+
+function createPreviewCheckboxInputs(name, options) {
+    const container = document.createElement("div");
+
+    options.forEach(opt => {
+        const label = document.createElement("label");
 
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.name = name;
-        checkbox.value = opt;
         checkbox.disabled = true;
 
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode(" " + opt));
+
         container.appendChild(label);
+        container.appendChild(document.createElement("br"));
     });
 
     return container;

@@ -66,7 +66,7 @@
 
     qType.addEventListener('change', () => {
         const t = qType.value;
-        choiceBlock.style.display = t === 'CHOICE' ? 'block' : 'none';
+        choiceBlock.style.display = (t === 'CHOICE_SINGLE' || t === 'CHOICE_MULTI') ? 'block' : 'none';
         numberBlock.style.display = t === 'NUMBER' ? 'block' : 'none';
     });
 
@@ -81,7 +81,7 @@
 
         const q = { questionText: text, type: type, options: [] };
 
-        if (type === 'CHOICE') {
+        if (type === 'CHOICE_SINGLE' || type === 'CHOICE_MULTI') {
             const lines = choiceArea.value
                 .split('\n')
                 .map((s) => s.trim())
