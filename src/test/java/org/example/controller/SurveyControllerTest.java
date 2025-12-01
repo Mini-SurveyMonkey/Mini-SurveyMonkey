@@ -312,7 +312,7 @@ class SurveyControllerTest {
 
     @Test
     @WithMockUser(username = "bob", roles = "USER")
-    void testCreateSurvey_CreatesUserIfMissing() throws Exception {
+    void testCreateSurvey_CreatesNoUser() throws Exception {
         when(userRepository.findByUsername("bob")).thenReturn(Optional.empty());
 
         User newUser = new User();
@@ -339,7 +339,7 @@ class SurveyControllerTest {
 
     @Test
     @WithMockUser(username = "alice", roles = "USER")
-    void testGetMySurveys_ReturnsOnlyUsersSurveys() throws Exception {
+    void testSurveys_ReturnsOnlyUsers() throws Exception {
         User alice = new User();
         alice.setId(1L);
         alice.setUsername("alice");
@@ -359,7 +359,7 @@ class SurveyControllerTest {
 
     @Test
     @WithMockUser(username = "carol", roles = "USER")
-    void testGetMySurveys_EmptyIfUserMissing() throws Exception {
+    void testSurveys_EmptyIfUserMissing() throws Exception {
         when(userRepository.findByUsername("carol")).thenReturn(Optional.empty());
 
         mockMvc.perform(get("/surveys/mine"))
