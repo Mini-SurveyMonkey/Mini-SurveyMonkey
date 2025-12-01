@@ -1,26 +1,118 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Take Survey</title>
-    <link rel="stylesheet" href="/css/surveys-take.css">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Survey Results</title>
+
+    <link rel="stylesheet" th:href="@{/css/survey.css}"/>
+
+    <!-- Chart.js for histograms and pie charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Initialize theme BEFORE paint -->
+    <script>
+        (function () {
+            const stored = localStorage.getItem('msm-theme');
+            if (stored === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
 </head>
 <body>
-<div class="topnav">
-    <a th:href="@{/}">&#8592; Home</a>
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Sign Out"/>
-    </form>
-</div>
-<!--<a href="/">← Home</a>-->
 
-<div id="survey-root">
-    Loading survey...
-</div>
+<!-- HEADER -->
+<header class="app-header">
+    <div class="app-header-left">
+        <a th:href="@{/}" class="app-logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">Mini Survey Monkey</span>
+        </a>
+
+        <nav class="app-nav">
+            <a th:href="@{/}" class="nav-link">Home</a>
+            <a th:href="@{/surveys/new}" class="nav-link">Create</a>
+        </nav>
+    </div>
+
+    <div class="app-header-right">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode">
+            🌙
+        </button>
+
+        <div class="user-menu">
+            <button class="avatar-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                <span class="avatar-circle">M</span>
+            </button>
+            <div class="user-menu-dropdown">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="dropdown-item">Sign out</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="app-main">
+    <div class="card">
+        <h1 id="survey-title">Survey Results</h1>
+        <p class="muted">
+            See how people responded to this survey. Number questions are shown as histograms,
+            and multiple-choice questions are shown as pie charts.
+        </p>
+
+        <div id="results-root">
+            <p class="muted">Loading results…</p>
+        </div>
+    </div>
+</main>
+
+<!-- Theme + avatar logic -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const root = document.documentElement;
+        const themeBtn = document.getElementById('themeToggle');
+
+        const applyIcon = () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
+        };
+        applyIcon();
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const isDark = root.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    root.removeAttribute('data-theme');
+                    localStorage.setItem('msm-theme', 'light');
+                } else {
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('msm-theme', 'dark');
+                }
+                applyIcon();
+            });
+        }
+
+        const userMenu = document.querySelector('.user-menu');
+        if (userMenu) {
+            const avatarBtn = userMenu.querySelector('.avatar-btn');
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', () => {
+                userMenu.classList.remove('open');
+            });
+        }
+    });
+</script>
 
 <script th:inline="javascript">
     const surveyId = /*[[${surveyId}]]*/ 0;
 </script>
-<script src="/js/surveys-take.js"></script>
+<script th:src="@{/js/surveys-results.js}"></script>
+
 </body>
 </html>

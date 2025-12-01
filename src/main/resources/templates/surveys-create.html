@@ -5,87 +5,165 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Create Survey</title>
     <link rel="stylesheet" th:href="@{/css/survey.css}">
+
+    <!-- Initialize theme BEFORE paint -->
+    <script>
+        (function () {
+            const root = document.documentElement;
+            const stored = localStorage.getItem('msm-theme');
+            if (stored === 'dark') {
+                root.setAttribute('data-theme', 'dark');
+            }
+        })();
+    </script>
 </head>
 <body>
 
-<div class="topnav">
-    <a th:href="@{/}">&#8592; Home</a>
-    <form th:action="@{/logout}" method="post">
-        <input type="submit" value="Sign Out" class="sign-out"/>
-    </form>
-</div>
+<!-- New header bar -->
+<header class="app-header">
+    <div class="app-header-left">
+        <a th:href="@{/}" class="app-logo">
+            <span class="logo-dot"></span>
+            <span class="logo-text">Mini Survey Monkey</span>
+        </a>
+        <nav class="app-nav">
+            <a th:href="@{/}" class="nav-link">Home</a>
+            <a th:href="@{/surveys/new}" class="nav-link active">Create</a>
+        </nav>
+    </div>
 
-<div class="card">
-    <h1>Create Survey</h1>
-    <p class="muted">
-        Add questions to build your custom survey. You can mix text, number, and multiple-choice questions.
-    </p>
+    <div class="app-header-right">
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Toggle dark mode">
+            🌙
+        </button>
 
-    <!-- SURVEY TITLE -->
-    <section class="form-section">
-        <h2 class="section-heading">Survey Title</h2>
-        <div class="form-group">
-            <label for="surveyTitle">Title</label>
-            <input id="surveyTitle" type="text" placeholder="e.g., Course Feedback Survey"/>
-        </div>
-    </section>
-
-    <!-- ADD QUESTION -->
-    <section class="form-section">
-        <h2 class="section-heading">Add Question</h2>
-
-        <div class="form-group">
-            <label for="qText">Question</label>
-            <input id="qText" type="text" placeholder="e.g., What did you enjoy most?"/>
-        </div>
-
-        <div class="form-group inline">
-            <div class="form-group-inner">
-                <label for="qType">Type</label>
-                <select id="qType">
-                    <option value="OPEN_TEXT">Open Text</option>
-                    <option value="NUMBER">Number</option>
-                    <<option value="CHOICE_SINGLE">Multiple Choice</option>
-                    <option value="CHOICE_MULTI">Multi-Select</option>
-                </select>
+        <div class="user-menu">
+            <button class="avatar-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                <span class="avatar-circle">M</span>
+            </button>
+            <div class="user-menu-dropdown">
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="dropdown-item">Sign out</button>
+                </form>
             </div>
-            <button id="addQuestionBtn" class="button primary" type="button">Add</button>
         </div>
+    </div>
+</header>
 
-        <div id="numberRangeBlock" class="form-group" style="display:none;">
-            <label>Number range (optional)</label>
-            <div class="double-input-row">
-                <div>
-                    <label for="minValue" class="sub-label">Min</label>
-                    <input id="minValue" type="number" placeholder="0"/>
-                </div>
-                <div>
-                    <label for="maxValue" class="sub-label">Max</label>
-                    <input id="maxValue" type="number" placeholder="100"/>
-                </div>
+<main class="app-main">
+    <div class="card">
+        <h1>Create Survey</h1>
+        <p class="muted">
+            Add questions to build your custom survey. You can mix text, number, and multiple-choice questions.
+        </p>
+
+        <!-- SURVEY TITLE -->
+        <section class="form-section">
+            <h2 class="section-heading">Survey Title</h2>
+            <div class="form-group">
+                <label for="surveyTitle">Title</label>
+                <input id="surveyTitle" type="text" placeholder="e.g., Course Feedback Survey"/>
             </div>
-            <p class="muted small">Leave either field empty for no bound.</p>
-        </div>
+        </section>
 
-        <!-- CHOICE OPTIONS -->
-        <div id="choiceOptionsBlock" class="form-group" style="display:none;">
-            <label for="choiceOptions">Choices (one per line)</label>
-            <textarea id="choiceOptions" placeholder="Yes
+        <!-- ADD QUESTION -->
+        <section class="form-section">
+            <h2 class="section-heading">Add Question</h2>
+
+            <div class="form-group">
+                <label for="qText">Question</label>
+                <input id="qText" type="text" placeholder="e.g., What did you enjoy most?"/>
+            </div>
+
+            <div class="form-group inline">
+                <div class="form-group-inner">
+                    <label for="qType">Type</label>
+                    <select id="qType">
+                        <option value="OPEN_TEXT">Open Text</option>
+                        <option value="NUMBER">Number</option>
+                        <option value="CHOICE_SINGLE">Multiple Choice</option>
+                        <option value="CHOICE_MULTI">Multi-Select</option>
+                    </select>
+                </div>
+                <button id="addQuestionBtn" class="button primary" type="button">Add</button>
+            </div>
+
+            <div id="numberRangeBlock" class="form-group" style="display:none;">
+                <label>Number range (optional)</label>
+                <div class="double-input-row">
+                    <div>
+                        <label for="minValue" class="sub-label">Min</label>
+                        <input id="minValue" type="number" placeholder="0"/>
+                    </div>
+                    <div>
+                        <label for="maxValue" class="sub-label">Max</label>
+                        <input id="maxValue" type="number" placeholder="100"/>
+                    </div>
+                </div>
+                <p class="muted small">Leave either field empty for no bound.</p>
+            </div>
+
+            <!-- CHOICE OPTIONS -->
+            <div id="choiceOptionsBlock" class="form-group" style="display:none;">
+                <label for="choiceOptions">Choices (one per line)</label>
+                <textarea id="choiceOptions" placeholder="Yes
 No
 Maybe"></textarea>
+            </div>
+        </section>
+
+        <section class="form-section">
+            <h2 class="section-heading">Questions in this Survey</h2>
+            <div id="questionsList"></div>
+        </section>
+
+        <div class="form-footer">
+            <button id="saveSurveyBtn" class="button primary" type="button">Save Survey</button>
+            <span id="status" class="muted"></span>
         </div>
-    </section>
-
-    <section class="form-section">
-        <h2 class="section-heading">Questions in this Survey</h2>
-        <div id="questionsList"></div>
-    </section>
-
-    <div class="form-footer">
-        <button id="saveSurveyBtn" class="button primary" type="button">Save Survey</button>
-        <span id="status" class="muted"></span>
     </div>
-</div>
+</main>
+
+<script>
+    // Theme toggle + avatar dropdown (same as index)
+    document.addEventListener('DOMContentLoaded', () => {
+        const root = document.documentElement;
+        const themeBtn = document.getElementById('themeToggle');
+
+        const applyIcon = () => {
+            const isDark = root.getAttribute('data-theme') === 'dark';
+            if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
+        };
+        applyIcon();
+
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const isDark = root.getAttribute('data-theme') === 'dark';
+                if (isDark) {
+                    root.removeAttribute('data-theme');
+                    localStorage.setItem('msm-theme', 'light');
+                } else {
+                    root.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('msm-theme', 'dark');
+                }
+                applyIcon();
+            });
+        }
+
+        const userMenu = document.querySelector('.user-menu');
+        if (userMenu) {
+            const avatarBtn = userMenu.querySelector('.avatar-btn');
+            avatarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userMenu.classList.toggle('open');
+            });
+
+            document.addEventListener('click', () => {
+                userMenu.classList.remove('open');
+            });
+        }
+    });
+</script>
 
 <script th:src="@{/js/surveys-create.js}"></script>
 </body>
